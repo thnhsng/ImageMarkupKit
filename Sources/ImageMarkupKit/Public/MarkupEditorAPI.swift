@@ -2,7 +2,7 @@ import UIKit
 
 /// Namespace for package-level information.
 public enum ImageMarkupKit {
-    public static let version = "0.1.0"
+    public static let version = "0.2.0"
 }
 
 /// How the flattened image is produced.
@@ -39,6 +39,42 @@ public struct MarkupExportOptions: Equatable, Sendable {
     public static let `default` = MarkupExportOptions()
 }
 
+/// Titles of the navigation bar buttons and of the alert Cancel shows when there are unsaved changes, e.g. to
+/// label the finishing button "Save" or to translate them. Start from `.english` and change what you need.
+public struct MarkupNavigationTexts: Equatable, Sendable {
+    /// The button that exports the image and finishes (top right).
+    public var done: String
+    /// The button that leaves without saving (top left).
+    public var cancel: String
+    /// Title of the discard-changes alert.
+    public var discardTitle: String
+    /// Message of the discard-changes alert.
+    public var discardMessage: String
+    /// The alert action that throws the changes away.
+    public var discard: String
+    /// The alert action that returns to the editor.
+    public var keepEditing: String
+
+    public init(done: String, cancel: String, discardTitle: String, discardMessage: String, discard: String, keepEditing: String) {
+        self.done = done
+        self.cancel = cancel
+        self.discardTitle = discardTitle
+        self.discardMessage = discardMessage
+        self.discard = discard
+        self.keepEditing = keepEditing
+    }
+
+    /// The built-in texts: "Done", "Cancel", "Discard changes?", …
+    public static let english = MarkupNavigationTexts(
+        done: Strings.done,
+        cancel: Strings.cancel,
+        discardTitle: Strings.discardTitle,
+        discardMessage: Strings.discardMessage,
+        discard: Strings.discard,
+        keepEditing: Strings.keepEditing
+    )
+}
+
 /// Editor options.
 public struct MarkupEditorConfiguration {
     /// Navigation title; defaults to "Markup" / "Board".
@@ -50,19 +86,23 @@ public struct MarkupEditorConfiguration {
     /// Tools, style buttons, board functions and selection actions to offer (e.g. `try .fromBundle()` to read
     /// `MarkupFeatures.json` from the app). Everything by default.
     public var features: MarkupFeatures
+    /// Titles of the Done and Cancel buttons and of the discard-changes alert. English by default.
+    public var navigationTexts: MarkupNavigationTexts
 
     public init(
         title: String? = nil,
         exportOptions: MarkupExportOptions = .default,
         packageDirectory: URL? = nil,
         styleDefaults: StyleDefaults = .standard,
-        features: MarkupFeatures = .all
+        features: MarkupFeatures = .all,
+        navigationTexts: MarkupNavigationTexts = .english
     ) {
         self.title = title
         self.exportOptions = exportOptions
         self.packageDirectory = packageDirectory
         self.styleDefaults = styleDefaults
         self.features = features
+        self.navigationTexts = navigationTexts
     }
 
     public static var `default`: MarkupEditorConfiguration { MarkupEditorConfiguration() }

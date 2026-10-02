@@ -44,11 +44,11 @@ No third-party dependencies. UIKit only.
 ## Installation
 
 Swift Package Manager: in Xcode, *File › Add Package Dependencies…*, enter
-`https://github.com/thnhsng/ImageMarkupKit`, choose *Up to Next Major Version* from `0.1.0`, then add the
+`https://github.com/thnhsng/ImageMarkupKit`, choose *Up to Next Minor Version* from `0.2.0`, then add the
 `ImageMarkupKit` library to the app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/thnhsng/ImageMarkupKit", from: "0.1.0")
+.package(url: "https://github.com/thnhsng/ImageMarkupKit", .upToNextMinor(from: "0.2.0"))
 ```
 
 Versions follow [Semantic Versioning](https://semver.org) and are git tags; see [CHANGELOG.md](CHANGELOG.md).
@@ -172,7 +172,15 @@ units; on a board photos are placed at a height of 600 units. Export density = p
 - `MarkupEditorConfiguration.features` (`MarkupFeatures`): which tools, style buttons, board functions and
   selection actions the editor offers (see below).
 - `MarkupEditorConfiguration.styleDefaults` (`StyleDefaults`): colors, widths and fonts of new items.
-- All user-facing strings are in `UI/Strings.swift` (English); localize there.
+- `MarkupEditorConfiguration.navigationTexts` (`MarkupNavigationTexts`): titles of the Done and Cancel buttons and
+  of the discard-changes alert, e.g. a "Save" button or a translation:
+
+  ```swift
+  var texts = MarkupNavigationTexts.english
+  texts.done = "Save"
+  configuration.navigationTexts = texts
+  ```
+- The other user-facing strings (tools, menus, panels) are in `UI/Strings.swift` (English); localize there.
 - `editor.tool` and `editor.selectedItemIDs` can be set programmatically.
 - Programmatic annotations: `MarkupItem.shape(...)`, `.text(...)`, `.stroke(...)`, `.line(...)`, `.connector(...)`,
   then `document.attachAnnotationsToPhotos()` on boards.

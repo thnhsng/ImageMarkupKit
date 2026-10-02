@@ -7,6 +7,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-02
+
+### Added
+
+- `MarkupNavigationTexts` and `MarkupEditorConfiguration.navigationTexts`: titles of the Done and Cancel buttons and
+  of the discard-changes alert, e.g. to label the finishing button "Save" or to translate them. The default
+  (`.english`) keeps the previous texts, so existing code is unchanged.
+
 ## [0.1.0] - 2026-10-02
 
 First public release.
@@ -23,5 +31,6 @@ First public release.
 - `MarkupFeatures`: turn tool groups or single tools off in code or with a `MarkupFeatures.json`.
 - Demo app in `Example/` with sample photos and scripted screenshot scenarios.
 
-[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/thnhsng/ImageMarkupKit/releases/tag/0.1.0

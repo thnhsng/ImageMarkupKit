@@ -448,12 +448,16 @@ public final class MarkupEditorViewController: UIViewController {
 
     private lazy var undoItem = UIBarButtonItem(image: SymbolCatalog.sf("arrow.uturn.backward"), style: .plain, target: self, action: #selector(undoTapped))
     private lazy var redoItem = UIBarButtonItem(image: SymbolCatalog.sf("arrow.uturn.forward"), style: .plain, target: self, action: #selector(redoTapped))
-    private lazy var doneItem = UIBarButtonItem(title: Strings.done, style: .done, target: self, action: #selector(doneTapped))
+    private lazy var doneItem = UIBarButtonItem(
+        title: configuration.navigationTexts.done, style: .done, target: self, action: #selector(doneTapped)
+    )
 
     private func configureNavigationItems() {
         undoItem.accessibilityLabel = Strings.undo
         redoItem.accessibilityLabel = Strings.redo
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: Strings.cancel, style: .plain, target: self, action: #selector(cancelTapped))
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: configuration.navigationTexts.cancel, style: .plain, target: self, action: #selector(cancelTapped)
+        )
         navigationItem.rightBarButtonItems = [doneItem, redoItem, undoItem]
         updateNavigationItems()
     }
@@ -489,11 +493,17 @@ public final class MarkupEditorViewController: UIViewController {
             finishCancelling()
             return
         }
-        let alert = UIAlertController(title: Strings.discardTitle, message: Strings.discardMessage, preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: Strings.discard, style: .destructive) { [weak self] _ in self?.finishCancelling() })
-        alert.addAction(UIAlertAction(title: Strings.keepEditing, style: .cancel))
+        present(makeDiscardAlert(), animated: true)
+    }
+
+    /// The confirmation Cancel shows when there are unsaved changes.
+    func makeDiscardAlert() -> UIAlertController {
+        let texts = configuration.navigationTexts
+        let alert = UIAlertController(title: texts.discardTitle, message: texts.discardMessage, preferredStyle: .actionSheet)
+        alert.addAction(UIAlertAction(title: texts.discard, style: .destructive) { [weak self] _ in self?.finishCancelling() })
+        alert.addAction(UIAlertAction(title: texts.keepEditing, style: .cancel))
         alert.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
-        present(alert, animated: true)
+        return alert
     }
 
     private func finishCancelling() {
