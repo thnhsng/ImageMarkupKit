@@ -1,0 +1,16 @@
+{
+  "_comment": "Example of a trimmed setup (demo: launch with -demoFeatures MarkupFeatures-inspection). Only what is turned off needs to be listed.",
+
+  "draw": { "items": { "highlighter": false } },
+  "shapes": {
+    "items": {
+      "roundedRectangle": false, "square": false, "triangle": false, "diamond": false,
+      "star": false, "pentagon": false, "speechBubble": false, "highlightBox": false
+    }
+  },
+  "lines": { "items": { "curve": false } },
+  "text": { "items": { "note": false } },
+  "style": { "items": { "textStyle": false } },
+  "board": { "items": { "arrange": false } },
+  "actions": { "items": { "lock": false, "bringToFront": false, "sendToBack": false } }
+}

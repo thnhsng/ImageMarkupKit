@@ -1,0 +1,39 @@
+{
+  "_comment": "Turns ImageMarkupKit tools on or off. A group's \"enabled\": false hides the whole group; an item false hides just that item. Missing groups or items are on. Unknown names are an error. Keys starting with _ are ignored.",
+
+  "draw": {
+    "enabled": true,
+    "items": { "pen": true, "highlighter": true }
+  },
+  "shapes": {
+    "enabled": true,
+    "items": {
+      "rectangle": true, "roundedRectangle": true, "oval": true, "circle": true, "square": true,
+      "triangle": true, "diamond": true, "star": true, "pentagon": true, "speechBubble": true, "highlightBox": true
+    }
+  },
+  "lines": {
+    "enabled": true,
+    "items": { "arrow": true, "polyline": true, "curve": true }
+  },
+  "text": {
+    "enabled": true,
+    "items": { "text": true, "note": true }
+  },
+  "eraser": {
+    "enabled": true,
+    "items": { "eraser": true }
+  },
+  "style": {
+    "enabled": true,
+    "items": { "shapeStyle": true, "borderColor": true, "fillColor": true, "textStyle": true }
+  },
+  "board": {
+    "enabled": true,
+    "items": { "photoLibrary": true, "camera": true, "arrange": true }
+  },
+  "actions": {
+    "enabled": true,
+    "items": { "editText": true, "duplicate": true, "bringToFront": true, "sendToBack": true, "lock": true, "delete": true }
+  }
+}
