@@ -1,5 +1,5 @@
 {
-  "_comment": "Example of a trimmed setup (demo: launch with -demoFeatures MarkupFeatures-inspection). Only what is turned off needs to be listed.",
+  "_comment": "Example of a trimmed setup (demo: launch with -demoFeatures MarkupFeatures-minimal). Only what is turned off needs to be listed.",
 
   "draw": { "items": { "highlighter": false } },
   "shapes": {

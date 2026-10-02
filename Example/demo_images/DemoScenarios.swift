@@ -149,6 +149,7 @@ enum DemoScenarios {
         case "rotate": editor.debugPerform(.rotate(itemIndex: 0, degrees: 20))
         case "resize": editor.debugPerform(.resize(itemIndex: 2, u: 1, v: 1, by: CGPoint(x: -700, y: -260)))
         case "arrange": editor.debugArrange(.column)
+        case "grid": editor.debugArrange(.grid)
         default:
             log("DEMO_ERROR unknown mutation \(mutation)")
             return
@@ -172,8 +173,8 @@ enum DemoScenarios {
         case "shape":
             editor.debugPerform(.draw(.shape(.star, lockAspect: false), points: [CGPoint(x: 560, y: 470), CGPoint(x: 700, y: 610)]))
         case "arrow":
-            // Ends on the red rectangle, so the arrow attaches to it.
-            editor.debugPerform(.draw(.arrow, points: [CGPoint(x: 80, y: 720), CGPoint(x: 150, y: 400), CGPoint(x: 260, y: 170)]))
+            // Ends on the red rectangle (the lodge), so the arrow attaches to it.
+            editor.debugPerform(.draw(.arrow, points: [CGPoint(x: 150, y: 300), CGPoint(x: 300, y: 520), CGPoint(x: 470, y: 690)]))
         case "boardArrow":
             // From photo A to photo C.
             editor.debugPerform(.draw(.arrow, points: [CGPoint(x: 600, y: 480), CGPoint(x: 1400, y: 520), CGPoint(x: 2300, y: 500)]))
@@ -196,10 +197,11 @@ enum DemoScenarios {
             editor.debugPerform(.dragLineVertex(itemIndex: index, vertex: 1, by: CGPoint(x: -60, y: -150)))
             editor.debugPerform(.insertLineVertex(itemIndex: index, segment: 1, by: CGPoint(x: 0, y: 140)))
         case "text":
-            editor.debugPerform(.draw(.text, points: [CGPoint(x: 520, y: 260)]))
-            editor.debugTypeText("Bolt loose / ボルト緩み")
+            editor.debugPerform(.draw(.text, points: [CGPoint(x: 640, y: 560)]))
+            editor.debugTypeText("Lunch spot / 昼食")
         case "eraser":
-            editor.debugPerform(.draw(.eraser, points: [CGPoint(x: 150, y: 470), CGPoint(x: 150, y: 570)]))
+            // Crosses the red wave under the note.
+            editor.debugPerform(.draw(.eraser, points: [CGPoint(x: 190, y: 185), CGPoint(x: 190, y: 225)]))
         default:
             log("DEMO_ERROR unknown tool \(tool)")
         }

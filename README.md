@@ -2,6 +2,14 @@
 
 Photo markup and multi-photo boards for iOS 15+.
 
+| Annotate a photo | Style panels | Curves and polylines |
+|---|---|---|
+| ![Annotated photo on iPhone](docs/screenshots/iphone-annotate.jpg) | ![Shape Style sheet on iPhone](docs/screenshots/iphone-panel.jpg) | ![Editing a curve on iPhone](docs/screenshots/iphone-curve.jpg) |
+
+| iPad: one-row toolbar | Board: several photos, attached arrows |
+|---|---|
+| ![Annotated photo on iPad](docs/screenshots/ipad-annotate.jpg) | ![Board with three photos on iPad](docs/screenshots/ipad-board.jpg) |
+
 - **Annotate a photo**: pen, highlighter, shapes (rectangle, rounded rectangle, oval, circle, square, triangle,
   diamond, star, pentagon, speech bubble, highlight box), arrows and lines, text, sticky notes, object eraser.
   Every mark is an object: select, move, resize (8 handles), rotate, restyle, duplicate, lock, reorder, undo/redo.
@@ -36,17 +44,24 @@ No third-party dependencies. UIKit only.
 ## Installation
 
 Swift Package Manager: in Xcode, *File › Add Package Dependencies…*, enter
-`https://github.com/thnhsng/ImageMarkupKit`, then add the `ImageMarkupKit` library to the app target. Or in
-`Package.swift`:
+`https://github.com/thnhsng/ImageMarkupKit`, choose *Up to Next Major Version* from `0.1.0`, then add the
+`ImageMarkupKit` library to the app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/thnhsng/ImageMarkupKit", branch: "main")
+.package(url: "https://github.com/thnhsng/ImageMarkupKit", from: "0.1.0")
 ```
+
+Versions follow [Semantic Versioning](https://semver.org) and are git tags; see [CHANGELOG.md](CHANGELOG.md).
+Before 1.0, minor versions (0.x) may contain breaking API changes.
 
 ## Demo app
 
 `Example/demo_images.xcodeproj` references this package locally (`..`), so library changes show up immediately.
 Open it, pick an iPhone or iPad simulator and run the `demo_images` scheme.
+
+The screenshots above come from the demo's scripted scenarios (Debug builds), e.g.
+`xcrun simctl launch <device> com.thnhsng.demo-images -demoScenario annotate -demoPanel shapeStyle -demoSelect 1`
+(see `Example/demo_images/DemoScenarios.swift`).
 
 ## Usage
 
@@ -139,7 +154,7 @@ units; on a board photos are placed at a height of 600 units. Export density = p
     { "id": "…", "type": "shape",  "content": { "kind": "ellipse", "box": { … }, "lockAspect": false },
       "style": { "strokeColor": "#FF3B30FF", "fillColor": "#FFCC004D", "lineWidth": 6, "dash": "solid", "opacity": 1, "cornerRadius": 0, "shadow": false },
       "parentID": "…" },              // board: the photo this mark is attached to
-    { "id": "…", "type": "text",   "content": { "text": "亀裂あり", "font": { "family": "hiraginoSans", "size": 30, "bold": true, "italic": false },
+    { "id": "…", "type": "text",   "content": { "text": "山頂", "font": { "family": "hiraginoSans", "size": 30, "bold": true, "italic": false },
                                                 "color": "#FF3B30FF", "alignment": "left", "fixedWidth": 280, "padding": 16, "box": { … } } },
     { "id": "…", "type": "stroke", "content": { "points": [[0, 0.5], …], "box": { … }, "isHighlighter": false } },   // points normalized to the box
     { "id": "…", "type": "line",   "content": { "start": { "point": [x, y], "binding": { "itemID": "…", "anchor": [0.3, 0.8] } },
@@ -165,7 +180,7 @@ units; on a board photos are placed at a height of 600 units. Export density = p
 ### Turning tools off
 
 Ship a `MarkupFeatures.json` in the app and load it (the demo app's `Example/demo_images/MarkupFeatures.json` lists every
-name, all on; `MarkupFeatures-inspection.json` is a trimmed example):
+name, all on; `MarkupFeatures-minimal.json` is a trimmed example):
 
 ```swift
 var configuration = MarkupEditorConfiguration()
@@ -229,6 +244,13 @@ The overall approach draws on ideas from [Drawsana](https://github.com/Asana/Dra
 Codable shapes dispatched by type, an operation-based undo stack, an immediate single-touch recognizer and
 quadratic-midpoint pen smoothing. The code here is an independent implementation built around per-object layers,
 zooming and a board model.
+
+Sample photos in `Example/demo_images/SamplePhotos/` are from [Unsplash](https://unsplash.com) under the
+[Unsplash License](https://unsplash.com/license) (not MIT):
+[mountain lake](https://unsplash.com/photos/TI-B-TNYJMU) by Paul E. Harrer,
+[Paris](https://unsplash.com/photos/_py5wlZTI2c) by Laura Liberal,
+[Stockholm](https://unsplash.com/photos/eVBg7A07NGg),
+[New York](https://unsplash.com/photos/hfIheOEJp9M) by Namphuong Van.
 
 ## License
 

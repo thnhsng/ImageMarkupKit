@@ -26,7 +26,7 @@ final class DemoFlows: NSObject, MarkupEditorDelegate, PHPickerViewControllerDel
     }
 
     /// Tools to offer, from `MarkupFeatures.json` in the app bundle (debug builds: `-demoFeatures <file>` picks
-    /// another JSON resource, e.g. `MarkupFeatures-inspection`).
+    /// another JSON resource, e.g. `MarkupFeatures-minimal`).
     static var features: MarkupFeatures {
         var resource = "MarkupFeatures"
         #if DEBUG

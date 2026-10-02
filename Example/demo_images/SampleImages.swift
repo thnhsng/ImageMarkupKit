@@ -2,24 +2,24 @@ import ImageIO
 import UIKit
 import UniformTypeIdentifiers
 
-/// Synthetic "inspection photos" for simulator demos and screenshots.
+/// Sample photos for simulator demos and screenshots, bundled in `SamplePhotos/` (Unsplash, see README).
 /// Written once to Caches/Samples as camera-sized JPEGs; one is stored rotated with EXIF orientation 6
 /// to exercise orientation handling.
 enum SampleImages {
     struct Spec {
         let name: String
-        let title: String
+        /// Bundled JPEG (without extension), drawn aspect-fill.
+        let photo: String
         /// Displayed (upright) pixel size.
         let size: CGSize
         let exifOrientation: Int
-        let tint: UIColor
     }
 
     static let specs: [Spec] = [
-        Spec(name: "sample-a", title: "A · Wall 4032×3024", size: CGSize(width: 4032, height: 3024), exifOrientation: 1, tint: .systemBlue),
-        Spec(name: "sample-b", title: "B · Pillar (EXIF 6)", size: CGSize(width: 3024, height: 4032), exifOrientation: 6, tint: .systemGreen),
-        Spec(name: "sample-c", title: "C · Panorama 4000×1500", size: CGSize(width: 4000, height: 1500), exifOrientation: 1, tint: .systemOrange),
-        Spec(name: "sample-d", title: "D · Pipe 3024×4032", size: CGSize(width: 3024, height: 4032), exifOrientation: 1, tint: .systemPurple),
+        Spec(name: "trip-a", photo: "mountain-lake", size: CGSize(width: 4032, height: 3024), exifOrientation: 1),
+        Spec(name: "trip-b", photo: "paris", size: CGSize(width: 3024, height: 4032), exifOrientation: 6),
+        Spec(name: "trip-c", photo: "stockholm", size: CGSize(width: 4000, height: 1500), exifOrientation: 1),
+        Spec(name: "trip-d", photo: "new-york", size: CGSize(width: 3024, height: 4032), exifOrientation: 1),
     ]
 
     static var directory: URL {
@@ -71,66 +71,19 @@ enum SampleImages {
         return UIGraphicsImageRenderer(size: size, format: format)
     }
 
-    /// A concrete-wall scene with a crack, a grid, and a big label.
+    /// The bundled photo scaled to fill `spec.size`, cropped to the center.
     private static func draw(_ spec: Spec) -> UIImage {
+        let url = Bundle.main.url(forResource: spec.photo, withExtension: "jpg")
+            ?? Bundle.main.url(forResource: spec.photo, withExtension: "jpg", subdirectory: "SamplePhotos")
+        let photo = url.flatMap { UIImage(contentsOfFile: $0.path) }
         let size = spec.size
         return renderer(size: size).image { context in
-            let ctx = context.cgContext
-            let colors = [UIColor(white: 0.82, alpha: 1).cgColor, UIColor(white: 0.62, alpha: 1).cgColor] as CFArray
-            if let gradient = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB), colors: colors, locations: [0, 1]) {
-                ctx.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: size.width, y: size.height), options: [])
-            }
-
-            // Panel grid.
-            let unit = min(size.width, size.height) / 6
-            ctx.setStrokeColor(UIColor(white: 0.5, alpha: 0.6).cgColor)
-            ctx.setLineWidth(unit * 0.02)
-            var x: CGFloat = 0
-            while x < size.width { ctx.move(to: CGPoint(x: x, y: 0)); ctx.addLine(to: CGPoint(x: x, y: size.height)); x += unit * 1.5 }
-            var y: CGFloat = 0
-            while y < size.height { ctx.move(to: CGPoint(x: 0, y: y)); ctx.addLine(to: CGPoint(x: size.width, y: y)); y += unit }
-            ctx.strokePath()
-
-            // Tinted element (pipe / beam) and bolts.
-            spec.tint.withAlphaComponent(0.55).setFill()
-            ctx.fill(CGRect(x: 0, y: size.height * 0.62, width: size.width, height: unit * 0.55))
-            UIColor(white: 0.25, alpha: 1).setFill()
-            for i in 0..<6 {
-                let cx = size.width * (0.1 + 0.16 * CGFloat(i))
-                ctx.fillEllipse(in: CGRect(x: cx - unit * 0.08, y: size.height * 0.62 + unit * 0.19, width: unit * 0.16, height: unit * 0.16))
-            }
-
-            // Crack.
-            ctx.setStrokeColor(UIColor(white: 0.12, alpha: 1).cgColor)
-            ctx.setLineWidth(unit * 0.035)
-            ctx.setLineJoin(.round)
-            let crack = [(0.18, 0.12), (0.24, 0.2), (0.22, 0.28), (0.3, 0.36), (0.29, 0.45), (0.36, 0.52)]
-            ctx.addLines(between: crack.map { CGPoint(x: size.width * $0.0, y: size.height * $0.1) })
-            ctx.strokePath()
-
-            // Label.
-            let paragraph = NSMutableParagraphStyle()
-            paragraph.alignment = .center
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: unit * 0.42, weight: .heavy),
-                .foregroundColor: UIColor(white: 0.1, alpha: 0.85),
-                .paragraphStyle: paragraph,
-            ]
-            let labelRect = CGRect(x: 0, y: size.height * 0.8, width: size.width, height: unit)
-            (spec.title as NSString).draw(in: labelRect, withAttributes: attributes)
-
-            // Orientation marker: an arrow pointing up in the upright image.
-            ctx.setFillColor(UIColor.systemRed.cgColor)
-            let ax = size.width * 0.88, ay = size.height * 0.1
-            ctx.move(to: CGPoint(x: ax, y: ay))
-            ctx.addLine(to: CGPoint(x: ax + unit * 0.3, y: ay + unit * 0.5))
-            ctx.addLine(to: CGPoint(x: ax - unit * 0.3, y: ay + unit * 0.5))
-            ctx.closePath()
-            ctx.fillPath()
-            ("UP" as NSString).draw(
-                in: CGRect(x: ax - unit * 0.5, y: ay + unit * 0.55, width: unit, height: unit * 0.4),
-                withAttributes: [.font: UIFont.systemFont(ofSize: unit * 0.25, weight: .bold), .foregroundColor: UIColor.systemRed, .paragraphStyle: paragraph]
-            )
+            UIColor.darkGray.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            guard let photo, photo.size.width > 0, photo.size.height > 0 else { return }
+            let scale = max(size.width / photo.size.width, size.height / photo.size.height)
+            let drawn = CGSize(width: photo.size.width * scale, height: photo.size.height * scale)
+            photo.draw(in: CGRect(x: (size.width - drawn.width) / 2, y: (size.height - drawn.height) / 2, width: drawn.width, height: drawn.height))
         }
     }
 }

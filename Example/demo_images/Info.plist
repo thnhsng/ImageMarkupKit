@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Take inspection photos to annotate.</string>
+	<string>Take photos to annotate.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Save annotated images to your photo library.</string>
 	<key>UIApplicationSceneManifest</key>
