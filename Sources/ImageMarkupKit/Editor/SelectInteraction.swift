@@ -36,7 +36,7 @@ final class MoveInteraction: CanvasInteraction {
             env.store.setPreview(nil)
             return
         }
-        env.store.commit(Attachments.reassigningParents(of: [itemID], in: preview), actionName: Strings.actionMove)
+        env.store.commit(Attachments.reassigningParents(of: [itemID], in: preview), actionName: env.store.strings.actionMove)
     }
 
     func cancel() {
@@ -86,7 +86,7 @@ final class ResizeInteraction: CanvasInteraction {
             env.store.setPreview(nil)
             return
         }
-        env.store.commit(preview, actionName: Strings.actionResize)
+        env.store.commit(preview, actionName: env.store.strings.actionResize)
     }
 
     func cancel() {
@@ -128,7 +128,7 @@ final class RotateInteraction: CanvasInteraction {
             env.store.setPreview(nil)
             return
         }
-        env.store.commit(preview, actionName: Strings.actionRotate)
+        env.store.commit(preview, actionName: env.store.strings.actionRotate)
     }
 
     func cancel() {
@@ -201,7 +201,7 @@ final class LineVertexInteraction: CanvasInteraction {
         update(endpoint)
         if let preview = env.store.preview {
             let isEnd = index == 0 || index == (line?.waypoints.count ?? 0) + 1
-            env.store.commit(preview, actionName: isEnd ? Strings.actionMoveEndpoint : Strings.actionMovePoint)
+            env.store.commit(preview, actionName: isEnd ? env.store.strings.actionMoveEndpoint : env.store.strings.actionMovePoint)
         }
     }
 
@@ -265,7 +265,7 @@ final class LineInsertInteraction: CanvasInteraction {
         guard let origin else { return }
         update(to: origin + (point - startTouch))
         if let preview = env.store.preview {
-            env.store.commit(preview, actionName: Strings.actionAddPoint)
+            env.store.commit(preview, actionName: env.store.strings.actionAddPoint)
         }
     }
 

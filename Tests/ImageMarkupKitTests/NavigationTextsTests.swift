@@ -49,8 +49,8 @@ final class NavigationTextsTests: XCTestCase {
 
     func testEnglishMatchesBuiltInStrings() {
         let english = MarkupNavigationTexts.english
-        XCTAssertEqual(english.done, Strings.done)
-        XCTAssertEqual(english.cancel, Strings.cancel)
+        XCTAssertEqual(english.done, Strings.english.done)
+        XCTAssertEqual(english.cancel, Strings.english.cancel)
         XCTAssertEqual(MarkupEditorConfiguration().navigationTexts, english)
     }
 }

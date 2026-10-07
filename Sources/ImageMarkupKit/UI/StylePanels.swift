@@ -6,7 +6,7 @@ import UIKit
 final class ShapeStylePanel: PanelViewController {
     private let widthSlider = UISlider()
     private let widthLabel = UILabel()
-    private let dashControl = UISegmentedControl(items: [Strings.solid, Strings.dashed, Strings.dotted])
+    private lazy var dashControl = UISegmentedControl(items: [editor.strings.solid, editor.strings.dashed, editor.strings.dotted])
     private let headsControl = UISegmentedControl(items: [
         SymbolCatalog.sf("line.diagonal", "minus") as Any,
         SymbolCatalog.sf("arrow.right") as Any,
@@ -20,7 +20,7 @@ final class ShapeStylePanel: PanelViewController {
     private var cornerRow: UIView?
 
     override func buildContent() {
-        addTitle(Strings.shapeStyle)
+        addTitle(editor.strings.shapeStyle)
 
         widthSlider.minimumValue = 1
         widthSlider.maximumValue = 40
@@ -31,28 +31,28 @@ final class ShapeStylePanel: PanelViewController {
         widthLabel.setContentHuggingPriority(.required, for: .horizontal)
         let widthRow = UIStackView(arrangedSubviews: [widthSlider, widthLabel])
         widthRow.spacing = 12
-        _ = addRow(Strings.lineWidth, widthRow)
+        _ = addRow(editor.strings.lineWidth, widthRow)
 
         dashControl.addTarget(self, action: #selector(dashChanged), for: .valueChanged)
-        _ = addRow(Strings.lineStyle, dashControl)
+        _ = addRow(editor.strings.lineStyle, dashControl)
 
         headsControl.addTarget(self, action: #selector(headsChanged), for: .valueChanged)
-        headsRow = addRow(Strings.arrowheads, headsControl)
+        headsRow = addRow(editor.strings.arrowheads, headsControl)
 
         opacitySlider.minimumValue = 0.1
         opacitySlider.maximumValue = 1
         opacitySlider.minimumValueImage = SymbolCatalog.sf("circle.lefthalf.filled", "circle")
         opacitySlider.addTarget(self, action: #selector(opacityChanged), for: .valueChanged)
         opacitySlider.addTarget(self, action: #selector(endCoalescing), for: [.touchUpInside, .touchUpOutside])
-        _ = addRow(Strings.opacity, opacitySlider)
+        _ = addRow(editor.strings.opacity, opacitySlider)
 
         cornerSlider.minimumValue = 0
         cornerSlider.maximumValue = 60
         cornerSlider.addTarget(self, action: #selector(cornerChanged), for: .valueChanged)
         cornerSlider.addTarget(self, action: #selector(endCoalescing), for: [.touchUpInside, .touchUpOutside])
-        cornerRow = addRow(Strings.cornerRadius, cornerSlider)
+        cornerRow = addRow(editor.strings.cornerRadius, cornerSlider)
 
-        let shadowRow = UIStackView(arrangedSubviews: [UILabel.panelLabel(Strings.shadow), shadowSwitch])
+        let shadowRow = UIStackView(arrangedSubviews: [UILabel.panelLabel(editor.strings.shadow), shadowSwitch])
         shadowSwitch.addTarget(self, action: #selector(shadowChanged), for: .valueChanged)
         stack.addArrangedSubview(shadowRow)
     }
@@ -135,7 +135,7 @@ final class ColorPanel: PanelViewController, UIColorPickerViewControllerDelegate
     private var isFill: Bool { kind == .fillColor }
 
     override func buildContent() {
-        addTitle(isFill ? Strings.fillColor : Strings.borderColor)
+        addTitle(isFill ? editor.strings.fillColor : editor.strings.borderColor)
         let columns = 4
         var colors: [RGBAColor?] = RGBAColor.palette.map { $0 }
         colors.insert(nil, at: 0)
@@ -149,7 +149,7 @@ final class ColorPanel: PanelViewController, UIColorPickerViewControllerDelegate
             }
             let button = UIButton(type: .custom)
             button.setImage(ToolbarCatalog.swatch(color, filled: true, size: 40), for: .normal)
-            button.accessibilityLabel = color?.hexString ?? Strings.noColor
+            button.accessibilityLabel = color?.hexString ?? editor.strings.noColor
             button.heightAnchor.constraint(equalToConstant: 44).isActive = true
             button.layer.cornerRadius = 8
             button.addAction(UIAction { [weak self] _ in self?.choose(color) }, for: .primaryActionTriggered)
@@ -162,7 +162,7 @@ final class ColorPanel: PanelViewController, UIColorPickerViewControllerDelegate
         }
 
         var configuration = UIButton.Configuration.gray()
-        configuration.title = Strings.customColor
+        configuration.title = editor.strings.customColor
         configuration.image = SymbolCatalog.sf("paintpalette", "eyedropper")
         configuration.imagePadding = 8
         let custom = UIButton(configuration: configuration, primaryAction: UIAction { [weak self] _ in self?.showPicker() })
@@ -252,12 +252,12 @@ final class TextStylePanel: PanelViewController {
     private var colorButtons: [(RGBAColor, UIButton)] = []
 
     override func buildContent() {
-        addTitle(Strings.textStyle)
+        addTitle(editor.strings.textStyle)
 
         familyButton.showsMenuAsPrimaryAction = true
         familyButton.changesSelectionAsPrimaryAction = true
         familyButton.contentHorizontalAlignment = .leading
-        _ = addRow(Strings.font, familyButton)
+        _ = addRow(editor.strings.font, familyButton)
 
         sizeSlider.minimumValue = 8
         sizeSlider.maximumValue = 200
@@ -273,15 +273,15 @@ final class TextStylePanel: PanelViewController {
         let sizeRow = UIStackView(arrangedSubviews: [sizeSlider, sizeLabel, sizeStepper])
         sizeRow.spacing = 10
         sizeRow.alignment = .center
-        _ = addRow(Strings.fontSize, sizeRow)
+        _ = addRow(editor.strings.fontSize, sizeRow)
 
         boldButton.configuration?.image = SymbolCatalog.sf("bold")
-        boldButton.accessibilityLabel = Strings.bold
+        boldButton.accessibilityLabel = editor.strings.bold
         boldButton.addAction(UIAction { [weak self] _ in
             self?.store.updateText { $0.font.bold.toggle() }
         }, for: .primaryActionTriggered)
         italicButton.configuration?.image = SymbolCatalog.sf("italic")
-        italicButton.accessibilityLabel = Strings.italic
+        italicButton.accessibilityLabel = editor.strings.italic
         italicButton.addAction(UIAction { [weak self] _ in
             self?.store.updateText { $0.font.italic.toggle() }
         }, for: .primaryActionTriggered)
@@ -289,7 +289,7 @@ final class TextStylePanel: PanelViewController {
         let styleRow = UIStackView(arrangedSubviews: [boldButton, italicButton, alignmentControl])
         styleRow.spacing = 10
         styleRow.distribution = .fill
-        _ = addRow(Strings.alignment, styleRow)
+        _ = addRow(editor.strings.alignment, styleRow)
 
         let colorRow = UIStackView()
         colorRow.distribution = .fillEqually
@@ -304,17 +304,17 @@ final class TextStylePanel: PanelViewController {
             colorRow.addArrangedSubview(button)
             colorButtons.append((color, button))
         }
-        _ = addRow(Strings.textColor, colorRow)
+        _ = addRow(editor.strings.textColor, colorRow)
     }
 
     override func reloadContent() {
         let content = store.currentTextContent
         familyButton.menu = UIMenu(options: .singleSelection, children: FontFamily.allCases.map { family in
-            UIAction(title: Strings.fontFamilyNames[family] ?? family.rawValue, state: family == content.font.family ? .on : .off) { [weak self] _ in
+            UIAction(title: editor.strings.fontFamilyName(family), state: family == content.font.family ? .on : .off) { [weak self] _ in
                 self?.store.updateText { $0.font.family = family }
             }
         })
-        familyButton.configuration?.title = Strings.fontFamilyNames[content.font.family] ?? content.font.family.rawValue
+        familyButton.configuration?.title = editor.strings.fontFamilyName(content.font.family)
         sizeSlider.value = Float(content.font.size)
         sizeStepper.value = Double(content.font.size)
         sizeLabel.text = "\(Int(content.font.size.rounded()))"

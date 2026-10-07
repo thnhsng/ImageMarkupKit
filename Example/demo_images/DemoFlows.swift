@@ -22,7 +22,12 @@ final class DemoFlows: NSObject, MarkupEditorDelegate, PHPickerViewControllerDel
     }
 
     private var configuration: MarkupEditorConfiguration {
-        MarkupEditorConfiguration(packageDirectory: Self.packageDirectory, features: Self.features)
+        MarkupEditorConfiguration(packageDirectory: Self.packageDirectory, features: Self.features, locale: Self.locale)
+    }
+
+    /// Language of the editor: English, or Japanese with the launch argument `-demoLocale ja`.
+    static var locale: MarkupLocale {
+        MarkupLocale(rawValue: UserDefaults.standard.string(forKey: "demoLocale") ?? "") ?? .english
     }
 
     /// Tools to offer, from `MarkupFeatures.json` in the app bundle (debug builds: `-demoFeatures <file>` picks

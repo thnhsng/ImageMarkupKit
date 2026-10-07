@@ -7,6 +7,8 @@ public final class MarkupEditorViewController: UIViewController {
     public let configuration: MarkupEditorConfiguration
 
     let store: EditorStore
+    /// The user-facing texts of `configuration.locale`.
+    var strings: Strings { store.strings }
     let canvasView = CanvasView()
     let overlayView = SelectionOverlayView()
     private(set) var interactions: InteractionController!
@@ -14,7 +16,8 @@ public final class MarkupEditorViewController: UIViewController {
     private(set) lazy var toolbar = MarkupToolbar(
         isBoard: store.document.isBoard,
         cameraAvailable: UIImagePickerController.isSourceTypeAvailable(.camera),
-        features: features
+        features: features,
+        strings: strings
     )
     private(set) lazy var panels = PanelPresenter(editor: self)
     private(set) lazy var imagePicking = ImagePicking(editor: self)
@@ -27,7 +30,12 @@ public final class MarkupEditorViewController: UIViewController {
     /// Opens an existing document. `assets` must contain every photo the document references.
     public init(document: MarkupDocument, assets: AssetCatalog, configuration: MarkupEditorConfiguration = .default) {
         self.configuration = configuration
-        self.store = EditorStore(document: document, assets: AssetStore(catalog: assets), defaults: configuration.styleDefaults)
+        self.store = EditorStore(
+            document: document,
+            assets: AssetStore(catalog: assets),
+            defaults: configuration.styleDefaults,
+            strings: Strings(locale: configuration.locale)
+        )
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -97,7 +105,7 @@ public final class MarkupEditorViewController: UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
-        title = configuration.title ?? (store.document.isBoard ? Strings.titleBoard : Strings.titleImage)
+        title = configuration.title ?? (store.document.isBoard ? strings.titleBoard : strings.titleImage)
         isModalInPresentation = true
 
         setUpLayout()
@@ -107,6 +115,7 @@ public final class MarkupEditorViewController: UIViewController {
         overlayView.frame = canvasView.overlayHost.bounds
         overlayView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         canvasView.overlayHost.addSubview(overlayView)
+        overlayView.actionBar.strings = strings
         overlayView.actionBar.onAction = { [weak self] action in self?.perform(action) }
 
         let environment = InteractionEnvironment(store: store, canvas: canvasView, overlay: overlayView)
@@ -171,13 +180,13 @@ public final class MarkupEditorViewController: UIViewController {
     public override var keyCommands: [UIKeyCommand]? {
         guard textEditing?.isEditing != true else { return nil }
         var commands = [
-            UIKeyCommand(title: Strings.undo, action: #selector(undoTapped), input: "z", modifierFlags: .command),
-            UIKeyCommand(title: Strings.redo, action: #selector(redoTapped), input: "z", modifierFlags: [.command, .shift]),
-            UIKeyCommand(title: Strings.zoomToFit, action: #selector(zoomToFitCommand), input: "0", modifierFlags: .command),
+            UIKeyCommand(title: strings.undo, action: #selector(undoTapped), input: "z", modifierFlags: .command),
+            UIKeyCommand(title: strings.redo, action: #selector(redoTapped), input: "z", modifierFlags: [.command, .shift]),
+            UIKeyCommand(title: strings.zoomToFit, action: #selector(zoomToFitCommand), input: "0", modifierFlags: .command),
             UIKeyCommand(input: UIKeyCommand.inputEscape, modifierFlags: [], action: #selector(escapeCommand)),
         ]
         if features.isEnabled(.duplicate) {
-            commands.append(UIKeyCommand(title: Strings.duplicate, action: #selector(duplicateCommand), input: "d", modifierFlags: .command))
+            commands.append(UIKeyCommand(title: strings.duplicate, action: #selector(duplicateCommand), input: "d", modifierFlags: .command))
         }
         if features.isEnabled(.delete) {
             commands.append(UIKeyCommand(input: UIKeyCommand.inputDelete, modifierFlags: [], action: #selector(deleteCommand)))
@@ -453,8 +462,8 @@ public final class MarkupEditorViewController: UIViewController {
     )
 
     private func configureNavigationItems() {
-        undoItem.accessibilityLabel = Strings.undo
-        redoItem.accessibilityLabel = Strings.redo
+        undoItem.accessibilityLabel = strings.undo
+        redoItem.accessibilityLabel = strings.redo
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: configuration.navigationTexts.cancel, style: .plain, target: self, action: #selector(cancelTapped)
         )
@@ -465,7 +474,7 @@ public final class MarkupEditorViewController: UIViewController {
     private lazy var progressItem: UIBarButtonItem = {
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.startAnimating()
-        spinner.accessibilityLabel = Strings.exporting
+        spinner.accessibilityLabel = strings.exporting
         return UIBarButtonItem(customView: spinner)
     }()
 

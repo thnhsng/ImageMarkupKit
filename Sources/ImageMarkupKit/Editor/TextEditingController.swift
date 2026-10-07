@@ -65,14 +65,14 @@ final class TextEditingController: NSObject, UITextViewDelegate {
                 env.store.clearSelection()
             } else {
                 document = Attachments.reassigningParents(of: [id], in: document)
-                env.store.commit(document, actionName: Strings.actionAddText, select: [id])
+                env.store.commit(document, actionName: env.store.strings.actionAddText, select: [id])
                 env.finishCreating(id, keepTool: false)
             }
         } else if isEmpty {
             document.items.removeAll { $0.id == id }
-            env.store.commit(document, actionName: Strings.actionDelete, select: [])
+            env.store.commit(document, actionName: env.store.strings.actionDelete, select: [])
         } else if document.item(id)?.textContent != originalContent {
-            env.store.commit(document, actionName: Strings.actionEditText, select: [id])
+            env.store.commit(document, actionName: env.store.strings.actionEditText, select: [id])
         } else {
             env.store.setPreview(nil)
         }
@@ -200,12 +200,12 @@ final class TextEditingController: NSObject, UITextViewDelegate {
     private func makeAccessoryBar() -> UIToolbar {
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 320, height: 44))
         let smaller = UIBarButtonItem(image: SymbolCatalog.sf("textformat.size.smaller", "minus"), style: .plain, target: self, action: #selector(decreaseFont))
-        smaller.accessibilityLabel = "Smaller"
+        smaller.accessibilityLabel = env.store.strings.smaller
         let larger = UIBarButtonItem(image: SymbolCatalog.sf("textformat.size.larger", "plus"), style: .plain, target: self, action: #selector(increaseFont))
-        larger.accessibilityLabel = "Larger"
+        larger.accessibilityLabel = env.store.strings.larger
         let bold = UIBarButtonItem(image: SymbolCatalog.sf("bold"), style: .plain, target: self, action: #selector(toggleBold))
-        bold.accessibilityLabel = Strings.bold
-        let done = UIBarButtonItem(title: Strings.done, style: .done, target: self, action: #selector(doneTapped))
+        bold.accessibilityLabel = env.store.strings.bold
+        let done = UIBarButtonItem(title: env.store.strings.done, style: .done, target: self, action: #selector(doneTapped))
         toolbar.items = [smaller, larger, bold, UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil), done]
         toolbar.sizeToFit()
         return toolbar

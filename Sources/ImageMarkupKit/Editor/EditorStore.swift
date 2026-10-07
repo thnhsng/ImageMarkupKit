@@ -26,19 +26,22 @@ final class EditorStore {
         didSet { if defaults != oldValue { notify(.defaults) } }
     }
     let assets: AssetStore
+    /// The user-facing texts of the editor's locale; undo action names come from here.
+    let strings: Strings
     let undoManager = UndoManager()
     var onChange: ((EditorChange) -> Void)?
 
     private var lastCoalescingKey: String?
     private var lastCommitTime: CFTimeInterval = 0
 
-    init(document: MarkupDocument, assets: AssetStore, defaults: StyleDefaults = .standard) {
+    init(document: MarkupDocument, assets: AssetStore, defaults: StyleDefaults = .standard, strings: Strings = .english) {
         var initial = document
         initial.normalizeZOrder()
         Bindings.refreshCachedEndpoints(in: &initial)
         self.document = initial
         self.assets = assets
         self.defaults = defaults
+        self.strings = strings
         undoManager.levelsOfUndo = 100
         // One commit = one undo step, independent of run-loop grouping.
         undoManager.groupsByEvent = false
@@ -144,7 +147,7 @@ final class EditorStore {
     func deleteSelection() {
         let ids = Set(selectedItems.filter { !$0.isLocked }.map(\.id))
         guard !ids.isEmpty else { return }
-        perform(Strings.actionDelete, select: []) { document in
+        perform(strings.actionDelete, select: []) { document in
             document.items.removeAll { ids.contains($0.id) }
             Bindings.detachReferences(to: ids, in: &document)
         }
@@ -171,7 +174,7 @@ final class EditorStore {
             }
             copies.append(copy)
         }
-        perform(Strings.actionDuplicate, select: copies.map(\.id)) { document in
+        perform(strings.actionDuplicate, select: copies.map(\.id)) { document in
             document.items.append(contentsOf: copies)
         }
     }
@@ -181,7 +184,7 @@ final class EditorStore {
     func moveSelection(_ move: ZOrderMove) {
         let ids = selection
         guard !ids.isEmpty else { return }
-        perform(move == .front ? Strings.actionBringToFront : Strings.actionSendToBack) { document in
+        perform(move == .front ? strings.actionBringToFront : strings.actionSendToBack) { document in
             let moving = document.items.filter { ids.contains($0.id) }
             document.items.removeAll { ids.contains($0.id) }
             switch move {
@@ -196,7 +199,7 @@ final class EditorStore {
         let ids = selection
         guard !ids.isEmpty else { return }
         let lock = !(selectedItems.allSatisfy(\.isLocked))
-        perform(lock ? Strings.actionLock : Strings.actionUnlock) { document in
+        perform(lock ? strings.actionLock : strings.actionUnlock) { document in
             for id in ids { document.update(id) { $0.isLocked = lock } }
         }
     }
@@ -225,7 +228,7 @@ final class EditorStore {
             result.update(image.id) { $0 = moved }
             Attachments.carryChildren(of: image, to: moved, from: source, into: &result)
         }
-        commit(result, actionName: Strings.actionArrange)
+        commit(result, actionName: strings.actionArrange)
     }
 
     /// Adds photos to the board after the existing ones and selects them.
@@ -233,7 +236,7 @@ final class EditorStore {
         guard document.isBoard, !sources.isEmpty else { return }
         var result = document
         let ids = result.appendImages(sources)
-        commit(result, actionName: Strings.actionAddImages, select: ids.count == 1 ? ids : [])
+        commit(result, actionName: strings.actionAddImages, select: ids.count == 1 ? ids : [])
     }
 
     // MARK: Styles
@@ -283,7 +286,7 @@ final class EditorStore {
             setDefaultStyle(style, forTool: tool)
             return
         }
-        perform(Strings.actionStyle, coalescingKey: coalescingKey) { document in
+        perform(strings.actionStyle, coalescingKey: coalescingKey) { document in
             for item in items {
                 document.update(item.id) { change(&$0.style) }
             }
@@ -307,7 +310,7 @@ final class EditorStore {
             defaults.textAlignment = content.alignment
             return
         }
-        perform(Strings.actionStyle, coalescingKey: coalescingKey) { document in
+        perform(strings.actionStyle, coalescingKey: coalescingKey) { document in
             for item in items {
                 document.update(item.id) { item in
                     guard case .text(var content) = item.content else { return }
@@ -331,7 +334,7 @@ final class EditorStore {
             defaults.lineEndHead = end
         }
         guard !lines.isEmpty else { return }
-        perform(Strings.actionStyle) { document in
+        perform(strings.actionStyle) { document in
             for item in lines {
                 document.update(item.id) { item in
                     guard case .line(var line) = item.content else { return }
@@ -357,7 +360,7 @@ final class EditorStore {
         if index == points.count { line.end = Endpoint(point: points[points.count - 1]) }
         line.waypoints = Array(points.dropFirst().dropLast())
         if points.count < 3 { line.isClosed = false }
-        perform(Strings.actionDeletePoint) { document in
+        perform(strings.actionDeletePoint) { document in
             document.update(itemID) { $0.content = .line(line) }
         }
     }
@@ -371,7 +374,7 @@ final class EditorStore {
             line.start.binding = nil
             line.end.binding = nil
         }
-        perform(closed ? Strings.actionCloseShape : Strings.actionOpenShape) { document in
+        perform(closed ? strings.actionCloseShape : strings.actionOpenShape) { document in
             document.update(itemID) { $0.content = .line(line) }
         }
     }

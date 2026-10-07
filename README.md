@@ -44,11 +44,11 @@ No third-party dependencies. UIKit only.
 ## Installation
 
 Swift Package Manager: in Xcode, *File › Add Package Dependencies…*, enter
-`https://github.com/thnhsng/ImageMarkupKit`, choose *Up to Next Minor Version* from `0.2.0`, then add the
+`https://github.com/thnhsng/ImageMarkupKit`, choose *Up to Next Minor Version* from `0.3.0`, then add the
 `ImageMarkupKit` library to the app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/thnhsng/ImageMarkupKit", .upToNextMinor(from: "0.2.0"))
+.package(url: "https://github.com/thnhsng/ImageMarkupKit", .upToNextMinor(from: "0.3.0"))
 ```
 
 Versions follow [Semantic Versioning](https://semver.org) and are git tags; see [CHANGELOG.md](CHANGELOG.md).
@@ -61,7 +61,7 @@ Open it, pick an iPhone or iPad simulator and run the `demo_images` scheme.
 
 The screenshots above come from the demo's scripted scenarios (Debug builds), e.g.
 `xcrun simctl launch <device> com.thnhsng.demo-images -demoScenario annotate -demoPanel shapeStyle -demoSelect 1`
-(see `Example/demo_images/DemoScenarios.swift`).
+(see `Example/demo_images/DemoScenarios.swift`). Add `-demoLocale ja` to open the editor in Japanese.
 
 ## Usage
 
@@ -172,15 +172,21 @@ units; on a board photos are placed at a height of 600 units. Export density = p
 - `MarkupEditorConfiguration.features` (`MarkupFeatures`): which tools, style buttons, board functions and
   selection actions the editor offers (see below).
 - `MarkupEditorConfiguration.styleDefaults` (`StyleDefaults`): colors, widths and fonts of new items.
-- `MarkupEditorConfiguration.navigationTexts` (`MarkupNavigationTexts`): titles of the Done and Cancel buttons and
-  of the discard-changes alert, e.g. a "Save" button or a translation:
+- `MarkupEditorConfiguration.locale` (`MarkupLocale`): language of every built-in text (tools, menus, panels, undo
+  names, the header and the discard alert), `.english` (default) or `.japanese`. The texts are the same as the web
+  package's (`image-markup-kit`, `locale: 'ja'`), and the raw values are its codes (`"en"`, `"ja"`):
 
   ```swift
-  var texts = MarkupNavigationTexts.english
-  texts.done = "Save"
-  configuration.navigationTexts = texts
+  let configuration = MarkupEditorConfiguration(locale: .japanese)
   ```
-- The other user-facing strings (tools, menus, panels) are in `UI/Strings.swift` (English); localize there.
+- `MarkupEditorConfiguration.navigationTexts` (`MarkupNavigationTexts`): titles of the Done and Cancel buttons and
+  of the discard-changes alert, the locale's texts until you set them, e.g. a "Save" button:
+
+  ```swift
+  var configuration = MarkupEditorConfiguration(locale: .japanese)
+  configuration.navigationTexts.done = "保存" // Cancel and the alert keep the Japanese texts
+  ```
+- All other strings are in `UI/Strings.swift`, one line per text with its English and Japanese versions.
 - `editor.tool` and `editor.selectedItemIDs` can be set programmatically.
 - Programmatic annotations: `MarkupItem.shape(...)`, `.text(...)`, `.stroke(...)`, `.line(...)`, `.connector(...)`,
   then `document.attachAnnotationsToPhotos()` on boards.

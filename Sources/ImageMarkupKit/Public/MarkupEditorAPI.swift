@@ -2,7 +2,7 @@ import UIKit
 
 /// Namespace for package-level information.
 public enum ImageMarkupKit {
-    public static let version = "0.2.0"
+    public static let version = "0.3.0"
 }
 
 /// How the flattened image is produced.
@@ -39,8 +39,15 @@ public struct MarkupExportOptions: Equatable, Sendable {
     public static let `default` = MarkupExportOptions()
 }
 
+/// Language of the editor's built-in texts: tools, menus, panels, undo names, the header and the discard alert.
+/// The raw values are the web package's locales (`"en"`, `"ja"`), and the texts are the same.
+public enum MarkupLocale: String, CaseIterable, Sendable {
+    case english = "en"
+    case japanese = "ja"
+}
+
 /// Titles of the navigation bar buttons and of the alert Cancel shows when there are unsaved changes, e.g. to
-/// label the finishing button "Save" or to translate them. Start from `.english` and change what you need.
+/// label the finishing button "Save". Start from `.english`, `.japanese` or `init(locale:)` and change what you need.
 public struct MarkupNavigationTexts: Equatable, Sendable {
     /// The button that exports the image and finishes (top right).
     public var done: String
@@ -64,20 +71,28 @@ public struct MarkupNavigationTexts: Equatable, Sendable {
         self.keepEditing = keepEditing
     }
 
-    /// The built-in texts: "Done", "Cancel", "Discard changes?", …
-    public static let english = MarkupNavigationTexts(
-        done: Strings.done,
-        cancel: Strings.cancel,
-        discardTitle: Strings.discardTitle,
-        discardMessage: Strings.discardMessage,
-        discard: Strings.discard,
-        keepEditing: Strings.keepEditing
-    )
+    /// The built-in texts of a locale.
+    public init(locale: MarkupLocale) {
+        let strings = Strings(locale: locale)
+        self.init(
+            done: strings.done,
+            cancel: strings.cancel,
+            discardTitle: strings.discardTitle,
+            discardMessage: strings.discardMessage,
+            discard: strings.discard,
+            keepEditing: strings.keepEditing
+        )
+    }
+
+    /// The built-in English texts: "Done", "Cancel", "Discard changes?", …
+    public static let english = MarkupNavigationTexts(locale: .english)
+    /// The built-in Japanese texts: 「完了」「キャンセル」「変更を破棄しますか？」…
+    public static let japanese = MarkupNavigationTexts(locale: .japanese)
 }
 
 /// Editor options.
 public struct MarkupEditorConfiguration {
-    /// Navigation title; defaults to "Markup" / "Board".
+    /// Navigation title; defaults to "Markup" / "Board" (in the locale's language).
     public var title: String?
     public var exportOptions: MarkupExportOptions
     /// When set, Done also saves an editable package (document.json + original photos + export) in this folder.
@@ -86,8 +101,15 @@ public struct MarkupEditorConfiguration {
     /// Tools, style buttons, board functions and selection actions to offer (e.g. `try .fromBundle()` to read
     /// `MarkupFeatures.json` from the app). Everything by default.
     public var features: MarkupFeatures
-    /// Titles of the Done and Cancel buttons and of the discard-changes alert. English by default.
-    public var navigationTexts: MarkupNavigationTexts
+    /// Language of the built-in texts. English by default.
+    public var locale: MarkupLocale
+    /// Titles of the Done and Cancel buttons and of the discard-changes alert: the locale's texts until set.
+    public var navigationTexts: MarkupNavigationTexts {
+        get { customNavigationTexts ?? MarkupNavigationTexts(locale: locale) }
+        set { customNavigationTexts = newValue }
+    }
+
+    private var customNavigationTexts: MarkupNavigationTexts?
 
     public init(
         title: String? = nil,
@@ -95,14 +117,16 @@ public struct MarkupEditorConfiguration {
         packageDirectory: URL? = nil,
         styleDefaults: StyleDefaults = .standard,
         features: MarkupFeatures = .all,
-        navigationTexts: MarkupNavigationTexts = .english
+        locale: MarkupLocale = .english,
+        navigationTexts: MarkupNavigationTexts? = nil
     ) {
         self.title = title
         self.exportOptions = exportOptions
         self.packageDirectory = packageDirectory
         self.styleDefaults = styleDefaults
         self.features = features
-        self.navigationTexts = navigationTexts
+        self.locale = locale
+        self.customNavigationTexts = navigationTexts
     }
 
     public static var `default`: MarkupEditorConfiguration { MarkupEditorConfiguration() }

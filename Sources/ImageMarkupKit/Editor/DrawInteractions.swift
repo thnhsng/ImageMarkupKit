@@ -43,7 +43,7 @@ final class PenInteraction: CanvasInteraction {
         var document = env.store.document
         document.items.append(item)
         document = Attachments.reassigningParents(of: [item.id], in: document)
-        env.store.commit(document, actionName: isHighlighter ? Strings.actionHighlight : Strings.actionDraw)
+        env.store.commit(document, actionName: isHighlighter ? env.store.strings.actionHighlight : env.store.strings.actionDraw)
         // Remove the preview in the same run-loop turn the committed view appears, so nothing flickers.
         previewLayer.removeFromSuperlayer()
     }
@@ -98,7 +98,7 @@ final class ShapeCreateInteraction: CanvasInteraction {
         }
         var document = document(with: rect)
         document = Attachments.reassigningParents(of: [itemID], in: document)
-        env.store.commit(document, actionName: Strings.actionAddShape, select: [itemID])
+        env.store.commit(document, actionName: env.store.strings.actionAddShape, select: [itemID])
         env.finishCreating(itemID, keepTool: false)
     }
 
@@ -153,7 +153,7 @@ final class ArrowCreateInteraction: CanvasInteraction {
         let endTarget = HitTesting.bindTarget(at: point, in: startDocument, tolerance: env.tolerance)
         var document = document(to: point, endTarget: endTarget)
         document = Attachments.reassigningParents(of: [itemID], in: document)
-        env.store.commit(document, actionName: kind == .curve ? Strings.actionAddCurve : Strings.actionAddArrow, select: [itemID])
+        env.store.commit(document, actionName: kind == .curve ? env.store.strings.actionAddCurve : env.store.strings.actionAddArrow, select: [itemID])
         env.finishCreating(itemID, keepTool: false)
     }
 
@@ -286,7 +286,7 @@ final class PolylineCreateInteraction: CanvasInteraction {
             } else if points.count >= 3, point.distance(to: points[0]) <= snapDistance {
                 env.finishPolyline(close: true)
             } else {
-                env.store.commit(document(appending: point, to: line), actionName: Strings.actionAddPoint, select: [line.id])
+                env.store.commit(document(appending: point, to: line), actionName: env.store.strings.actionAddPoint, select: [line.id])
             }
             return
         }
@@ -325,7 +325,7 @@ final class PolylineCreateInteraction: CanvasInteraction {
     private func create(from start: CGPoint, to end: CGPoint) {
         var document = document(creatingFrom: start, to: end)
         document = Attachments.reassigningParents(of: [newItemID], in: document)
-        env.store.commit(document, actionName: Strings.actionAddPolyline, select: [newItemID])
+        env.store.commit(document, actionName: env.store.strings.actionAddPolyline, select: [newItemID])
         draft.begin(itemID: newItemID)
     }
 
@@ -425,7 +425,7 @@ final class EraserInteraction: CanvasInteraction {
         let ids = Set(erased)
         env.canvas.hiddenItemIDs.subtract(ids)
         guard !ids.isEmpty else { return }
-        env.store.perform(Strings.actionErase, select: []) { document in
+        env.store.perform(env.store.strings.actionErase, select: []) { document in
             document.items.removeAll { ids.contains($0.id) }
             Bindings.detachReferences(to: ids, in: &document)
         }

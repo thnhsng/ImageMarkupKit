@@ -31,22 +31,22 @@ enum ToolbarCatalog {
         }
     }
 
-    static func title(for item: Item) -> String {
+    static func title(for item: Item, strings: Strings) -> String {
         switch item {
-        case .select: return Strings.toolSelect
-        case .sketch: return Strings.toolSketch
-        case .highlight: return Strings.toolHighlight
-        case .shapes: return Strings.toolShapes
-        case .arrow: return Strings.toolArrow
-        case .text: return Strings.toolText
-        case .note: return Strings.toolNote
-        case .eraser: return Strings.toolEraser
-        case .shapeStyle: return Strings.shapeStyle
-        case .borderColor: return Strings.borderColor
-        case .fillColor: return Strings.fillColor
-        case .textStyle: return Strings.textStyle
-        case .addImages: return Strings.addImages
-        case .arrange: return Strings.arrange
+        case .select: return strings.toolSelect
+        case .sketch: return strings.toolSketch
+        case .highlight: return strings.toolHighlight
+        case .shapes: return strings.toolShapes
+        case .arrow: return strings.toolArrow
+        case .text: return strings.toolText
+        case .note: return strings.toolNote
+        case .eraser: return strings.toolEraser
+        case .shapeStyle: return strings.shapeStyle
+        case .borderColor: return strings.borderColor
+        case .fillColor: return strings.fillColor
+        case .textStyle: return strings.textStyle
+        case .addImages: return strings.addImages
+        case .arrange: return strings.arrange
         }
     }
 
@@ -87,11 +87,11 @@ enum ToolbarCatalog {
         }
     }
 
-    static func lineToolTitle(_ tool: MarkupTool) -> String {
+    static func lineToolTitle(_ tool: MarkupTool, strings: Strings) -> String {
         switch tool {
-        case .polyline: return Strings.toolPolyline
-        case .curve: return Strings.toolCurve
-        default: return Strings.toolArrow
+        case .polyline: return strings.toolPolyline
+        case .curve: return strings.toolCurve
+        default: return strings.toolArrow
         }
     }
 
@@ -144,12 +144,12 @@ enum ToolbarCatalog {
         }
     }
 
-    static func arrangementTitle(_ arrangement: BoardLayout.Arrangement) -> String {
+    static func arrangementTitle(_ arrangement: BoardLayout.Arrangement, strings: Strings) -> String {
         switch arrangement {
-        case .row: return Strings.arrangeRow
-        case .column: return Strings.arrangeColumn
-        case .grid: return Strings.arrangeGrid
-        case .tidy: return Strings.arrangeTidy
+        case .row: return strings.arrangeRow
+        case .column: return strings.arrangeColumn
+        case .grid: return strings.arrangeGrid
+        case .tidy: return strings.arrangeTidy
         }
     }
 

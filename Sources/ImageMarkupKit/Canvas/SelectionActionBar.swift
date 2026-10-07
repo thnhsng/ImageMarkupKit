@@ -23,24 +23,26 @@ final class SelectionActionBar: UIView {
             }
         }
 
-        var title: String {
+        func title(_ strings: Strings) -> String {
             switch self {
-            case .editText: return Strings.editText
-            case .duplicate: return Strings.duplicate
-            case .bringToFront: return Strings.bringToFront
-            case .sendToBack: return Strings.sendToBack
-            case .lock: return Strings.lock
-            case .unlock: return Strings.unlock
-            case .delete: return Strings.delete
-            case .finishPath: return Strings.finishPath
-            case .closePath: return Strings.closeShape
-            case .openPath: return Strings.openShape
-            case .deletePoint: return Strings.deletePoint
+            case .editText: return strings.editText
+            case .duplicate: return strings.duplicate
+            case .bringToFront: return strings.bringToFront
+            case .sendToBack: return strings.sendToBack
+            case .lock: return strings.lock
+            case .unlock: return strings.unlock
+            case .delete: return strings.delete
+            case .finishPath: return strings.finishPath
+            case .closePath: return strings.closeShape
+            case .openPath: return strings.openShape
+            case .deletePoint: return strings.deletePoint
             }
         }
     }
 
     var onAction: ((Action) -> Void)?
+    /// The editor's texts, for the buttons' accessibility labels.
+    var strings: Strings = .english
     private let background = UIVisualEffectView(effect: UIBlurEffect(style: .systemMaterial))
     private let stack = UIStackView()
     private(set) var actions: [Action] = []
@@ -83,7 +85,7 @@ final class SelectionActionBar: UIView {
             let button = UIButton(type: .system)
             button.setImage(action.symbol, for: .normal)
             button.tintColor = action == .delete ? .systemRed : (action == .finishPath ? .tintColor : .label)
-            button.accessibilityLabel = action.title
+            button.accessibilityLabel = action.title(strings)
             button.addAction(UIAction { [weak self] _ in self?.onAction?(action) }, for: .primaryActionTriggered)
             let width = button.widthAnchor.constraint(equalToConstant: Self.buttonSize)
             width.priority = .required - 1

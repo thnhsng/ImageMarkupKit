@@ -44,6 +44,7 @@ final class MarkupToolbar: UIView {
     private let isBoard: Bool
     private let cameraAvailable: Bool
     private let features: MarkupFeatures
+    private let strings: Strings
     /// Entries of the Shapes and Arrow menus that the configuration allows.
     private let shapeEntries: [(kind: ShapeKind, lockAspect: Bool)]
     private let lineTools: [MarkupTool]
@@ -51,10 +52,11 @@ final class MarkupToolbar: UIView {
     private var lastShape: (kind: ShapeKind, lockAspect: Bool)
     private var lastLineTool: MarkupTool
 
-    init(isBoard: Bool, cameraAvailable: Bool, features: MarkupFeatures = .all) {
+    init(isBoard: Bool, cameraAvailable: Bool, features: MarkupFeatures = .all, strings: Strings = .english) {
         self.isBoard = isBoard
         self.cameraAvailable = cameraAvailable
         self.features = features
+        self.strings = strings
         shapeEntries = ToolbarCatalog.shapes.filter { features.isEnabled(MarkupFeature(shape: $0.kind, lockAspect: $0.lockAspect)) }
         lineTools = ToolbarCatalog.lineTools.filter(features.allows)
         lastShape = shapeEntries.first ?? (.rectangle, false)
@@ -238,7 +240,7 @@ final class MarkupToolbar: UIView {
             configuration.baseForegroundColor = button.isSelected ? .tintColor : (button.isEnabled ? .label : .tertiaryLabel)
             button.configuration = configuration
         }
-        button.accessibilityLabel = ToolbarCatalog.title(for: item)
+        button.accessibilityLabel = ToolbarCatalog.title(for: item, strings: strings)
         button.accessibilityIdentifier = "toolbar.\(item)"
         button.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -265,7 +267,7 @@ final class MarkupToolbar: UIView {
             let isCurrent: Bool
             if case .shape(let kind, let lock) = currentTool { isCurrent = kind == entry.kind && lock == entry.lockAspect } else { isCurrent = false }
             return UIAction(
-                title: Strings.shapeName(entry.kind, lockAspect: entry.lockAspect),
+                title: strings.shapeName(entry.kind, lockAspect: entry.lockAspect),
                 image: ToolbarCatalog.shapeImage(entry.kind, lockAspect: entry.lockAspect),
                 state: isCurrent ? .on : .off
             ) { [weak self] _ in
@@ -273,14 +275,14 @@ final class MarkupToolbar: UIView {
                 self?.onToolSelected?(.shape(entry.kind, lockAspect: entry.lockAspect))
             }
         }
-        return UIMenu(title: Strings.toolShapes, options: .singleSelection, children: actions)
+        return UIMenu(title: strings.toolShapes, options: .singleSelection, children: actions)
     }
 
     /// Arrow / line, polyline and curve share one button, like the shapes.
     private func linesMenu() -> UIMenu {
         let actions = lineTools.map { tool in
             UIAction(
-                title: ToolbarCatalog.lineToolTitle(tool),
+                title: ToolbarCatalog.lineToolTitle(tool, strings: strings),
                 image: ToolbarCatalog.lineToolImage(tool),
                 state: currentTool == tool ? .on : .off
             ) { [weak self] _ in
@@ -288,35 +290,35 @@ final class MarkupToolbar: UIView {
                 self?.onToolSelected?(tool)
             }
         }
-        return UIMenu(title: Strings.toolLines, options: .singleSelection, children: actions)
+        return UIMenu(title: strings.toolLines, options: .singleSelection, children: actions)
     }
 
     private func addImagesMenu(_ sources: [AddImageSource]) -> UIMenu {
         let actions = sources.map { source in
             switch source {
             case .photoLibrary:
-                return UIAction(title: Strings.photoLibrary, image: SymbolCatalog.sf("photo.on.rectangle.angled", "photo")) { [weak self] _ in
+                return UIAction(title: strings.photoLibrary, image: SymbolCatalog.sf("photo.on.rectangle.angled", "photo")) { [weak self] _ in
                     self?.onAddImages?(.photoLibrary)
                 }
             case .camera:
-                return UIAction(title: Strings.camera, image: SymbolCatalog.sf("camera")) { [weak self] _ in
+                return UIAction(title: strings.camera, image: SymbolCatalog.sf("camera")) { [weak self] _ in
                     self?.onAddImages?(.camera)
                 }
             }
         }
-        return UIMenu(title: Strings.addImages, children: actions)
+        return UIMenu(title: strings.addImages, children: actions)
     }
 
     private func arrangeMenu() -> UIMenu {
         let arrangements = BoardLayout.Arrangement.allCases.map { arrangement in
-            UIAction(title: ToolbarCatalog.arrangementTitle(arrangement), image: ToolbarCatalog.arrangementImage(arrangement)) { [weak self] _ in
+            UIAction(title: ToolbarCatalog.arrangementTitle(arrangement, strings: strings), image: ToolbarCatalog.arrangementImage(arrangement)) { [weak self] _ in
                 self?.onArrange?(arrangement)
             }
         }
-        let zoom = UIAction(title: Strings.zoomToFit, image: SymbolCatalog.sf("arrow.up.left.and.arrow.down.right")) { [weak self] _ in
+        let zoom = UIAction(title: strings.zoomToFit, image: SymbolCatalog.sf("arrow.up.left.and.arrow.down.right")) { [weak self] _ in
             self?.onZoomToFit?()
         }
-        return UIMenu(title: Strings.arrange, children: [UIMenu(options: .displayInline, children: arrangements), zoom])
+        return UIMenu(title: strings.arrange, children: [UIMenu(options: .displayInline, children: arrangements), zoom])
     }
 
     // MARK: State
@@ -356,7 +358,7 @@ final class MarkupToolbar: UIView {
         }
         if let lines = buttons[.arrow] {
             lines.configuration?.image = ToolbarCatalog.lineToolImage(lastLineTool)
-            lines.accessibilityLabel = ToolbarCatalog.lineToolTitle(lastLineTool)
+            lines.accessibilityLabel = ToolbarCatalog.lineToolTitle(lastLineTool, strings: strings)
             if lineTools.count > 1 { lines.menu = linesMenu() }
         }
         buttons[.borderColor]?.configuration?.image = ToolbarCatalog.swatch(state.strokeColor, filled: false)
