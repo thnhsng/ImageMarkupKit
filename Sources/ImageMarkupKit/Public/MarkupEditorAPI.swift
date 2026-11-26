@@ -2,7 +2,7 @@ import UIKit
 
 /// Namespace for package-level information.
 public enum ImageMarkupKit {
-    public static let version = "0.3.0"
+    public static let version = "0.3.1"
 }
 
 /// How the flattened image is produced.
@@ -17,7 +17,8 @@ public struct MarkupExportOptions: Equatable, Sendable {
     public var maxPixelDimension: CGFloat
     /// Total pixel budget of the output (memory guard for large boards).
     public var maxPixelCount: CGFloat
-    /// Board mode: empty margin around the content, in canvas units.
+    /// Board mode: empty margin around the content, in canvas units. None by default: a board exports what is
+    /// drawn, edge to edge (one photo marked up inside it exports as just the photo).
     public var boardPadding: CGFloat
     /// Board mode: minimum pixels per canvas unit, so text stays sharp even when photos are small.
     public var minimumBoardScale: CGFloat
@@ -26,7 +27,7 @@ public struct MarkupExportOptions: Equatable, Sendable {
         format: Format = .jpeg(quality: 0.85),
         maxPixelDimension: CGFloat = 8192,
         maxPixelCount: CGFloat = 40_000_000,
-        boardPadding: CGFloat = 24,
+        boardPadding: CGFloat = 0,
         minimumBoardScale: CGFloat = 2
     ) {
         self.format = format

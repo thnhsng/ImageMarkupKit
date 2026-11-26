@@ -39,14 +39,17 @@ enum ExportPlanner {
         return ExportPlan(rect: rect, pixelSize: pixelSize, isClamped: isClamped)
     }
 
+    /// Image mode: the photo. Boards: what is drawn, edge to edge, plus `boardPadding`; an empty board is 800 × 600.
     static func exportRect(for document: MarkupDocument, options: MarkupExportOptions) -> CGRect {
         if let canvas = document.policy.canvasRect, canvas.width > 0, canvas.height > 0 {
             return canvas
         }
-        let bounds = ItemGeometry.visualBounds(of: document.items, in: document)
+        // Not rounded out to whole units: photos are rarely a whole number of units wide, and the extra fraction
+        // would show as a sliver of background along their edge.
+        let bounds = ItemGeometry.inkBounds(of: document.items, in: document)
         guard !bounds.isNull, bounds.width > 0, bounds.height > 0 else {
             return CGRect(x: 0, y: 0, width: 800, height: 600)
         }
-        return bounds.insetBy(dx: -options.boardPadding, dy: -options.boardPadding).integral
+        return bounds.insetBy(dx: -options.boardPadding, dy: -options.boardPadding)
     }
 }

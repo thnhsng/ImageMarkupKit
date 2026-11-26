@@ -26,7 +26,8 @@ Photo markup and multi-photo boards for iOS 15+.
   photos; add more photos later; Arrange (row / column / grid / tidy up). Arrows attach to a point on a photo and
   follow it; marks drawn on a photo are attached to it and move, scale and rotate with it.
 - **Export**: one flattened JPEG (or PNG). A single photo exports at its original pixel size; boards export at the
-  photos' resolution, capped at 8192 px and 40 MP.
+  photos' resolution, capped at 8192 px and 40 MP. A board exports what is drawn, edge to edge (one photo marked up
+  inside its edges exports as just the photo); `MarkupExportOptions.boardPadding` adds a margin.
 - **Re-editable**: optionally saves a package (JSON + original photos + export) that reopens in the editor.
 - Toolbar modelled on macOS Preview's Markup bar: one row under the navigation bar on iPad (regular width),
   two rows at the bottom on iPhone (compact width); style panels are popovers on iPad and sheets on iPhone.

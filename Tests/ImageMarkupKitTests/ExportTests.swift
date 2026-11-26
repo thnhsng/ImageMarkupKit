@@ -41,11 +41,64 @@ final class ExportTests: XCTestCase {
         XCTAssertLessThanOrEqual(max(plan.pixelSize.width, plan.pixelSize.height), 8192)
     }
 
-    func testBoardRectIsUnionOfVisualBoundsPlusPadding() {
+    /// A photo opened as a board and marked up inside exports as just the photo: no frame, no sliver on the right
+    /// (the photo is 899.55 units wide), at its own pixel size.
+    func testOnePhotoBoardExportsJustThePhoto() throws {
+        let url = TestSupport.writeJPEG(width: 2000, height: 1334, color: .blue)
+        var board = MarkupDocument.board([ImageSource(assetID: "photo", pixelSize: CGSize(width: 2000, height: 1334))])
+        let frame = try XCTUnwrap(board.items.first?.box?.frame)
+        // An arrow whose tip is 5 units inside the right edge.
+        board.items.append(.line(from: CGPoint(x: 500, y: 300), to: CGPoint(x: frame.maxX - 5, y: 300), style: ItemStyle()))
+
+        let plan = ExportPlanner.plan(for: board, options: .default)
+        XCTAssertEqual(plan.rect, frame)
+        XCTAssertEqual(plan.pixelSize, CGSize(width: 2000, height: 1334))
+
+        let rendering = MarkupRenderer.renderSynchronously(board, assets: AssetCatalog(urls: ["photo": url]), options: MarkupExportOptions(format: .png))
+        XCTAssertEqual(rendering.pixelSize, CGSize(width: 2000, height: 1334))
+        let blue = TestSupport.RGBA(r: 0, g: 0, b: 255, a: 255)
+        let w = Int(rendering.pixelSize.width), h = Int(rendering.pixelSize.height)
+        for (x, y) in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1), (w - 1, h / 3), (w / 2, h - 1), (0, h / 3), (w / 2, 0)] {
+            XCTAssertTrue(TestSupport.pixel(rendering.image, x: x, y: y).isClose(to: blue, tolerance: 24), "photo at (\(x), \(y))")
+        }
+    }
+
+    func testBoardRectIsUnionOfWhatIsDrawnPlusOptionalPadding() {
         var board = MarkupDocument.board([ImageSource(assetID: "a", pixelSize: CGSize(width: 800, height: 600))])
         board.items.append(.shape(.rectangle, frame: CGRect(x: 900, y: 100, width: 100, height: 100), style: ItemStyle(lineWidth: 6)))
+        XCTAssertEqual(ExportPlanner.exportRect(for: board, options: .default), CGRect(x: 0, y: 0, width: 1003, height: 600))
+        let padded = ExportPlanner.exportRect(for: board, options: MarkupExportOptions(boardPadding: 24))
+        XCTAssertEqual(padded, CGRect(x: -24, y: -24, width: 1003 + 48, height: 648))
+    }
+
+    func testBoardRectEndsAtTheTipOfAnArrowPastThePhoto() {
+        var board = MarkupDocument.board([ImageSource(assetID: "a", pixelSize: CGSize(width: 800, height: 600))])
+        board.items.append(.line(from: CGPoint(x: 700, y: 300), to: CGPoint(x: 850, y: 300), style: ItemStyle()))
         let rect = ExportPlanner.exportRect(for: board, options: .default)
-        XCTAssertEqual(rect, CGRect(x: -24, y: -24, width: 1003 + 48, height: 648))
+        XCTAssertEqual(rect.minX, 0)
+        XCTAssertEqual(rect.minY, 0)
+        XCTAssertEqual(rect.maxX, 850, accuracy: 1e-9)
+        XCTAssertEqual(rect.maxY, 600)
+    }
+
+    func testBoardRectKeepsTheMiterTipOfAShapePastThePhoto() {
+        var board = MarkupDocument.board([ImageSource(assetID: "a", pixelSize: CGSize(width: 800, height: 600))])
+        board.items.append(.shape(.triangle, frame: CGRect(x: 300, y: -80, width: 100, height: 100), style: ItemStyle(lineWidth: 6)))
+        let rect = ExportPlanner.exportRect(for: board, options: .default)
+        // The apex's half-angle is atan(1/2), so its miter reaches 3 / sin(atan(1/2)) = 3√5 above it, not just 3.
+        XCTAssertEqual(rect.minY, -80 - 3 * sqrt(5), accuracy: 1e-9)
+        XCTAssertEqual(rect.minX, 0)
+        XCTAssertEqual(rect.maxX, 800)
+    }
+
+    func testBoardRectFitsRoundedCornersWithoutMiters() {
+        var board = MarkupDocument.board([ImageSource(assetID: "a", pixelSize: CGSize(width: 800, height: 600))])
+        board.items.append(.shape(.rectangle, frame: CGRect(x: 300, y: -100, width: 100, height: 100), rotation: .pi / 4,
+                                  style: ItemStyle(lineWidth: 6, cornerRadius: 20)))
+        let rect = ExportPlanner.exportRect(for: board, options: .default)
+        // Turned 45°, the rounded square reaches 30√2 (its corners' centers) + 20 (their radius) + 3 above its center.
+        XCTAssertEqual(rect.minY, -50 - (30 * sqrt(2) + 23), accuracy: 0.05)
+        XCTAssertEqual(rect.maxY, 600)
     }
 
     func testPixelsLandWhereExpected() {

@@ -7,6 +7,22 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-26
+
+### Fixed
+
+- A board no longer exports with a white frame around what is drawn: a photo opened as a board and marked up inside
+  its edges exports as just the photo, edge to edge. Marks past a photo's edge widen the image just to their tips:
+  no longer by an arrowhead's length around a whole arrow.
+- No sliver of background along a board photo's right or bottom edge: the export is no longer rounded out to whole
+  canvas units (photos on a board are rarely a whole number of units wide).
+- The sharp corners of mitered borders (triangles, stars, diamonds, pentagons, rotated rectangles and bordered photos)
+  are no longer cut off at the edge of a board export.
+
+### Changed
+
+- `MarkupExportOptions.boardPadding` is 0 by default (it was 24). Pass `boardPadding: 24` for the former margin.
+
 ## [0.3.0] - 2026-10-07
 
 ### Added
@@ -50,7 +66,8 @@ First public release.
 - `MarkupFeatures`: turn tool groups or single tools off in code or with a `MarkupFeatures.json`.
 - Demo app in `Example/` with sample photos and scripted screenshot scenarios.
 
-[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.1...HEAD
+[0.3.1]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/thnhsng/ImageMarkupKit/releases/tag/0.1.0
