@@ -122,6 +122,7 @@ final class InteractionController: NSObject, UIGestureRecognizerDelegate {
             case .rotate: return RotateInteraction(env: env, itemID: item.id)
             case .lineVertex(let index): return vertexInteraction(item: item, index: index)
             case .lineInsert(let segment): return LineInsertInteraction(env: env, itemID: item.id, segment: segment)
+            case .bubbleTail(let part): return BubbleTailInteraction(env: env, itemID: item.id, part: part)
             }
         }
         guard let item = HitTesting.item(at: point, in: store.displayed, tolerance: env.tolerance) else { return nil }

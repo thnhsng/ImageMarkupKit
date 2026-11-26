@@ -18,6 +18,8 @@ public enum MarkupDebugGesture {
     case dragLineVertex(itemIndex: Int, vertex: Int, by: CGPoint)
     /// Drag a new point out of the "+" handle of `segment` of the polyline or curve at `itemIndex`.
     case insertLineVertex(itemIndex: Int, segment: Int, by: CGPoint)
+    /// Drag the tip or the width handle of the tail of the speech bubble at `itemIndex` by `delta`.
+    case dragBubbleTail(itemIndex: Int, part: BubbleTailPart, by: CGPoint)
 }
 
 public extension MarkupEditorViewController {
@@ -67,6 +69,12 @@ public extension MarkupEditorViewController {
             store.select([item.id])
             let start = handles[segment]
             run(LineInsertInteraction(env: env, itemID: item.id, segment: segment), through: [start, start + delta * 0.5, start + delta])
+        case .dragBubbleTail(let index, let part, let delta):
+            guard let item = item(at: index), let handles = BubbleGeometry.handles(of: item) else { return }
+            let handle = part == .tip ? handles.tip : handles.width
+            guard let start = handle else { return }
+            store.select([item.id])
+            run(BubbleTailInteraction(env: env, itemID: item.id, part: part), through: [start, start + delta * 0.5, start + delta])
         }
     }
 

@@ -95,7 +95,7 @@ final class LocaleTests: XCTestCase {
             \.cancel, \.done, \.undo, \.redo, \.titleImage, \.titleBoard, \.discardTitle, \.discardMessage, \.discard,
             \.keepEditing, \.exporting, \.exportFailed,
             \.actionDelete, \.actionDuplicate, \.actionBringToFront, \.actionSendToBack, \.actionLock, \.actionUnlock,
-            \.actionStyle, \.actionMove, \.actionResize, \.actionRotate, \.actionDraw, \.actionHighlight,
+            \.actionStyle, \.actionMove, \.actionResize, \.actionRotate, \.actionAdjustTail, \.actionDraw, \.actionHighlight,
             \.actionAddShape, \.actionAddArrow, \.actionMoveEndpoint, \.actionAddPolyline, \.actionAddCurve,
             \.actionAddPoint, \.actionMovePoint, \.actionDeletePoint, \.actionCloseShape, \.actionOpenShape,
             \.actionAddText, \.actionEditText, \.actionErase, \.actionArrange, \.actionAddImages,

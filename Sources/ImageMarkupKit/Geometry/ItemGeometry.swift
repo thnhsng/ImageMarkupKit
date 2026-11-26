@@ -16,6 +16,10 @@ enum ItemGeometry {
         case .stroke(let stroke):
             // Stroke boxes already include half the line width.
             return stroke.box.boundingRect.insetBy(dx: -shadow, dy: -shadow)
+        case .shape(let shape) where shape.kind == .speechBubble && shape.tail != nil:
+            // The tail can reach past the box.
+            let pad = item.style.effectiveLineWidth / 2 + shadow
+            return BubbleGeometry.worldBounds(of: shape).insetBy(dx: -pad, dy: -pad)
         default:
             guard let box = item.box else { return .null }
             let pad = item.style.effectiveLineWidth / 2 + shadow
@@ -40,7 +44,7 @@ enum ItemGeometry {
             let path = CGPath(rect: CGRect(origin: .zero, size: content.box.frame.size), transform: nil)
             return strokedBounds(of: path, placedBy: content.box.boxToWorld, half: half, join: .miter)
         case .shape(let content):
-            let path = PathFactory.shapePath(kind: content.kind, size: content.box.frame.size, cornerRadius: style.cornerRadius)
+            let path = PathFactory.shapePath(content, cornerRadius: style.cornerRadius)
             return strokedBounds(of: path, placedBy: content.box.boxToWorld, half: half, join: PathFactory.lineJoin(for: content.kind))
         case .text(let content):
             let pad = style.effectiveLineWidth / 2

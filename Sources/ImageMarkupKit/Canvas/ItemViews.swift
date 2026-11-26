@@ -100,7 +100,7 @@ final class ShapeItemView: ItemView {
     override func update(item: MarkupItem, in document: MarkupDocument, context: ItemViewContext) {
         guard case .shape(let content) = item.content else { return }
         applyBox(content.box)
-        let path = PathFactory.shapePath(kind: content.kind, size: content.box.frame.size, cornerRadius: item.style.cornerRadius)
+        let path = PathFactory.shapePath(content, cornerRadius: item.style.cornerRadius)
         shapeLayer.path = path
         Self.configure(shapeLayer, stroke: item.style.strokeColor, fill: item.style.fillColor, style: item.style,
                        join: PathFactory.lineJoin(for: content.kind), cap: .butt)

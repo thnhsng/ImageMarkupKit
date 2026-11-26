@@ -48,7 +48,7 @@ enum ItemDrawing {
 
         case .shape(let content):
             ctx.concatenate(content.box.boxToWorld)
-            let path = PathFactory.shapePath(kind: content.kind, size: content.box.frame.size, cornerRadius: style.cornerRadius)
+            let path = PathFactory.shapePath(content, cornerRadius: style.cornerRadius)
             fillAndStroke(path, style: style, join: PathFactory.lineJoin(for: content.kind), in: ctx)
 
         case .text(let content):

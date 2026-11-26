@@ -10,6 +10,8 @@ enum HandleKind: Equatable {
     case lineVertex(Int)
     /// The "+" in the middle of segment i (point i → i + 1) of a polyline or curve.
     case lineInsert(Int)
+    /// The tip of a speech bubble's tail, or the end of its base (its width).
+    case bubbleTail(BubbleTailPart)
 
     static let allResize: [HandleKind] = [
         .resize(u: 0, v: 0), .resize(u: 0.5, v: 0), .resize(u: 1, v: 0),

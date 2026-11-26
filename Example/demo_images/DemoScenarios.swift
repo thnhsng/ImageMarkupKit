@@ -196,6 +196,9 @@ enum DemoScenarios {
             let index = editor.document.items.count - 1
             editor.debugPerform(.dragLineVertex(itemIndex: index, vertex: 1, by: CGPoint(x: -60, y: -150)))
             editor.debugPerform(.insertLineVertex(itemIndex: index, segment: 1, by: CGPoint(x: 0, y: 140)))
+        case "bubbleTail":
+            // Points the speech bubble's tail (item 5) down and to the left, past its box.
+            editor.debugPerform(.dragBubbleTail(itemIndex: 5, part: .tip, by: CGPoint(x: -220, y: 180)))
         case "text":
             editor.debugPerform(.draw(.text, points: [CGPoint(x: 640, y: 560)]))
             editor.debugTypeText("Lunch spot / 昼食")

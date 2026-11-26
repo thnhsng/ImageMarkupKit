@@ -44,6 +44,7 @@ struct Strings: Sendable {
     var actionMove: String { text("Move", "移動") }
     var actionResize: String { text("Resize", "サイズ変更") }
     var actionRotate: String { text("Rotate", "回転") }
+    var actionAdjustTail: String { text("Adjust Tail", "しっぽの調整") }
     var actionDraw: String { text("Draw", "描画") }
     var actionHighlight: String { text("Highlight", "ハイライト") }
     var actionAddShape: String { text("Add Shape", "図形の追加") }

@@ -31,6 +31,8 @@ final class SelectionOverlayView: UIView {
     private let handlesLayer = NoAnimationShapeLayer()
     private let boundHandlesLayer = NoAnimationShapeLayer()
     private let activeHandleLayer = NoAnimationShapeLayer()
+    /// Handles that shape an item rather than move or resize it (a speech bubble's tail), yellow like Keynote's.
+    private let adjustHandlesLayer = NoAnimationShapeLayer()
     private let insertHandlesLayer = NoAnimationShapeLayer()
     private let insertPlusLayer = NoAnimationShapeLayer()
     private let targetLayer = NoAnimationShapeLayer()
@@ -83,6 +85,11 @@ final class SelectionOverlayView: UIView {
         activeHandleLayer.lineWidth = 2
         layer.addSublayer(activeHandleLayer)
 
+        adjustHandlesLayer.fillColor = UIColor.systemYellow.cgColor
+        adjustHandlesLayer.strokeColor = UIColor.systemBlue.cgColor
+        adjustHandlesLayer.lineWidth = 1.5
+        layer.addSublayer(adjustHandlesLayer)
+
         actionBar.isHidden = true
         addSubview(actionBar)
     }
@@ -112,6 +119,7 @@ final class SelectionOverlayView: UIView {
             handlesLayer.path = nil
             boundHandlesLayer.path = nil
             activeHandleLayer.path = nil
+            adjustHandlesLayer.path = nil
             insertHandlesLayer.path = nil
             insertPlusLayer.path = nil
             actionBar.isHidden = true
@@ -124,6 +132,7 @@ final class SelectionOverlayView: UIView {
         let dots = CGMutablePath()
         let boundDots = CGMutablePath()
         let activeDots = CGMutablePath()
+        let adjustDots = CGMutablePath()
         let insertDots = CGMutablePath()
         let insertPluses = CGMutablePath()
 
@@ -155,10 +164,26 @@ final class SelectionOverlayView: UIView {
             outline.addLines(between: corners)
             outline.closeSubpath()
             selectionScreenBounds = CGRect.bounding(corners)
+            // A speech bubble's tail can reach past its box.
+            let tail = BubbleGeometry.handles(of: item)
+            if let tail {
+                selectionScreenBounds = selectionScreenBounds.union(CGRect(origin: toScreen(tail.tip), size: .zero))
+            }
             guard !item.isLocked else { break }
 
             // Fewer handles on items that are small on screen, so they stay individually grabbable.
             let screenSize = CGSize(width: box.frame.width * canvas.zoomScale, height: box.frame.height * canvas.zoomScale)
+            // The tail's handles come first, so they win over a resize handle at the same distance.
+            if let tail {
+                let tip = toScreen(tail.tip)
+                handles.append(Handle(kind: .bubbleTail(.tip), point: tip))
+                addDot(at: tip, to: adjustDots)
+                if let width = tail.width, min(screenSize.width, screenSize.height) >= 36 {
+                    let point = toScreen(width)
+                    handles.append(Handle(kind: .bubbleTail(.width), point: point))
+                    addDot(at: point, to: adjustDots)
+                }
+            }
             let resizeHandles: [HandleKind]
             if item.isText {
                 resizeHandles = [.resize(u: 0, v: 0.5), .resize(u: 1, v: 0.5)]
@@ -192,6 +217,7 @@ final class SelectionOverlayView: UIView {
         handlesLayer.path = dots
         boundHandlesLayer.path = boundDots
         activeHandleLayer.path = activeDots
+        adjustHandlesLayer.path = adjustDots
         insertHandlesLayer.path = insertDots
         insertPlusLayer.path = insertPluses
         actionBar.configure(actions: actions)

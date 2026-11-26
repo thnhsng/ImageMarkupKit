@@ -92,25 +92,46 @@ public struct ImageContent: Codable, Equatable, Sendable {
     }
 }
 
+/// The tail of a speech bubble that was adjusted. The bubble's box is then its body, and the tail runs from the
+/// side of the body that faces the tip.
+public struct BubbleTail: Codable, Equatable, Sendable {
+    /// Tip, normalized within the box's unrotated frame: (0, 0) is the top-left corner, (1, 1) the bottom-right.
+    /// Usually outside the box.
+    public var tip: CGPoint
+    /// Width of the tail where it leaves the body, as a fraction of that side's length.
+    public var width: CGFloat
+
+    public init(tip: CGPoint, width: CGFloat) {
+        self.tip = tip
+        self.width = width
+    }
+}
+
 public struct ShapeContent: Codable, Equatable, Sendable {
     public var kind: ShapeKind
     public var box: Box
     /// Circle / square: resizing keeps the aspect ratio.
     public var lockAspect: Bool
+    /// Speech bubbles whose tail was adjusted. `nil`: the original bubble, with its body in the top 78% of the box
+    /// and the tail tip on the bottom edge.
+    public var tail: BubbleTail?
 
-    public init(kind: ShapeKind, box: Box, lockAspect: Bool = false) {
+    public init(kind: ShapeKind, box: Box, lockAspect: Bool = false, tail: BubbleTail? = nil) {
         self.kind = kind
         self.box = box
         self.lockAspect = lockAspect
+        self.tail = tail
     }
 
-    private enum CodingKeys: String, CodingKey { case kind, box, lockAspect }
+    private enum CodingKeys: String, CodingKey { case kind, box, lockAspect, tail }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         kind = try c.decode(ShapeKind.self, forKey: .kind)
         box = try c.decode(Box.self, forKey: .box)
         lockAspect = try c.decodeIfPresent(Bool.self, forKey: .lockAspect) ?? false
+        // A tail that cannot be read leaves the original bubble rather than losing the item.
+        tail = try? c.decodeIfPresent(BubbleTail.self, forKey: .tail)
     }
 }
 

@@ -136,6 +136,78 @@ final class RotateInteraction: CanvasInteraction {
     }
 }
 
+/// Drags a handle of a speech bubble's tail: its tip, or the end of its base (the width). The first drag of a bubble
+/// without a tail gives it one where it was drawn (`BubbleGeometry.documentWithTail`), in the same undo step.
+final class BubbleTailInteraction: CanvasInteraction {
+    private let env: InteractionEnvironment
+    private let itemID: UUID
+    private let part: BubbleTailPart
+    private var startDocument: MarkupDocument
+    private var startTouch: CGPoint = .zero
+    /// The document with the bubble given a tail, before the drag.
+    private var adjustedDocument: MarkupDocument?
+    private var adjusted: MarkupItem? { adjustedDocument?.item(itemID) }
+    /// The handle's world position when the drag began.
+    private var origin: CGPoint = .zero
+    private var didMove = false
+
+    init(env: InteractionEnvironment, itemID: UUID, part: BubbleTailPart) {
+        self.env = env
+        self.itemID = itemID
+        self.part = part
+        self.startDocument = env.store.document
+    }
+
+    func begin(at point: CGPoint) {
+        startDocument = env.store.document
+        startTouch = point
+        guard let item = startDocument.item(itemID), !item.isLocked,
+              let document = BubbleGeometry.documentWithTail(of: itemID, in: startDocument),
+              let adjusted = document.item(itemID),
+              let handles = BubbleGeometry.handles(of: adjusted) else { return }
+        switch part {
+        case .tip:
+            origin = handles.tip
+        case .width:
+            guard let width = handles.width else { return }
+            origin = width
+        }
+        adjustedDocument = document
+    }
+
+    func move(to point: CGPoint, samples: [CGPoint], predicted: [CGPoint]) {
+        guard adjusted != nil else { return }
+        guard didMove || point.distance(to: startTouch) * env.zoom > 3 else { return }
+        didMove = true
+        update(point)
+    }
+
+    func end(at point: CGPoint) {
+        guard didMove, adjusted != nil else {
+            env.store.setPreview(nil)
+            return
+        }
+        update(point)
+        if let preview = env.store.preview {
+            env.store.commit(preview, actionName: env.store.strings.actionAdjustTail)
+        }
+    }
+
+    func cancel() {
+        env.store.setPreview(nil)
+    }
+
+    private func update(_ point: CGPoint) {
+        // Keep the finger's offset from the handle, so the handle doesn't jump under the finger.
+        guard var document = adjustedDocument, var item = adjusted, case .shape(var shape) = item.content,
+              let tail = BubbleGeometry.tail(of: item, moving: part, to: origin + (point - startTouch)) else { return }
+        shape.tail = tail
+        item.content = .shape(shape)
+        document.update(itemID) { $0 = item }
+        env.store.setPreview(document)
+    }
+}
+
 /// Drags one point of a line (`index` 0 is the start, the last index the end). The ends of an open line attach
 /// to the item they are released over. A tap without dragging calls `onTap`.
 final class LineVertexInteraction: CanvasInteraction {

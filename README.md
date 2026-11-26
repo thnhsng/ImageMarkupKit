@@ -13,6 +13,8 @@ Photo markup and multi-photo boards for iOS 15+.
 - **Annotate a photo**: pen, highlighter, shapes (rectangle, rounded rectangle, oval, circle, square, triangle,
   diamond, star, pentagon, speech bubble, highlight box), arrows and lines, text, sticky notes, object eraser.
   Every mark is an object: select, move, resize (8 handles), rotate, restyle, duplicate, lock, reorder, undo/redo.
+  A selected speech bubble has two yellow handles: drag the tip of its tail anywhere, even past the bubble, and drag
+  the end of its base to make the tail wider or narrower.
 - **Polylines and curves** (in the Arrow button's menu, next to Arrow / Line):
   - *Polyline*: tap (or drag to) each point; tap the last point again, or ✓, to finish; tap the first point to
     close it into a fillable polygon. Undo removes the last point.
@@ -49,7 +51,7 @@ Swift Package Manager: in Xcode, *File › Add Package Dependencies…*, enter
 `ImageMarkupKit` library to the app target. Or in `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/thnhsng/ImageMarkupKit", .upToNextMinor(from: "0.3.0"))
+.package(url: "https://github.com/thnhsng/ImageMarkupKit", .upToNextMinor(from: "0.4.0"))
 ```
 
 Versions follow [Semantic Versioning](https://semver.org) and are git tags; see [CHANGELOG.md](CHANGELOG.md).
@@ -167,6 +169,10 @@ units; on a board photos are placed at a height of 600 units. Export density = p
 - `box.frame` is the unrotated frame; `rotation` is in radians about its center.
 - A `binding.anchor` is a normalized point inside the target's unrotated frame; `point` caches the resolved position.
 - Colors are sRGB `#RRGGBBAA`. Unknown item types are skipped when decoding, so older apps can open newer files.
+- A speech bubble whose tail was dragged has `"tail": { "tip": [0.16, 1.28], "width": 0.16 }` in its content: its
+  box is then the body alone, `tip` is normalized to the box (it may lie outside it) and `width` is a fraction of the
+  side the tail leaves. Without `tail` the bubble is drawn as before (body in the top 78% of the box, tail tip on its
+  bottom edge); an app that predates `tail` draws a bubble that has one with the fixed tail, inside its box.
 
 ## Customization
 

@@ -16,7 +16,7 @@ enum HitTesting {
             switch item.content {
             case .shape(let shape):
                 let local = boxSpacePoint(point, in: shape.box)
-                let path = PathFactory.shapePath(kind: shape.kind, size: shape.box.frame.size, cornerRadius: item.style.cornerRadius)
+                let path = PathFactory.shapePath(shape, cornerRadius: item.style.cornerRadius)
                 if path.contains(local) { return item }
             case .line(let line) where line.isClosed:
                 if closedLinePath(line, in: document).contains(point) { return item }
@@ -43,9 +43,13 @@ enum HitTesting {
         case .text(let content):
             return content.box.contains(point, tolerance: t)
         case .shape(let content):
-            guard content.box.contains(point, tolerance: t + lineWidth / 2) else { return false }
+            // The frame, and the tail of a speech bubble wherever its tip is.
+            let reach = t + lineWidth / 2
+            guard BubbleGeometry.frameSpaceBounds(of: content).insetBy(dx: -reach, dy: -reach).contains(content.box.toLocal(point)) else {
+                return false
+            }
             let local = boxSpacePoint(point, in: content.box)
-            let path = PathFactory.shapePath(kind: content.kind, size: content.box.frame.size, cornerRadius: item.style.cornerRadius)
+            let path = PathFactory.shapePath(content, cornerRadius: item.style.cornerRadius)
             if item.style.fillColor != nil, path.contains(local) { return true }
             let outline = path.copy(strokingWithWidth: max(lineWidth, 1) + 2 * t, lineCap: .round, lineJoin: .round, miterLimit: 10)
             return outline.contains(local)
@@ -88,7 +92,7 @@ enum HitTesting {
                     hit = false
                 }
             case .shape(let content):
-                let path = PathFactory.shapePath(kind: content.kind, size: content.box.frame.size, cornerRadius: item.style.cornerRadius)
+                let path = PathFactory.shapePath(content, cornerRadius: item.style.cornerRadius)
                 let outline = path.copy(strokingWithWidth: max(lineWidth, 1) + 2 * r, lineCap: .round, lineJoin: .round, miterLimit: 10)
                 hit = samples.contains { sample in
                     let local = boxSpacePoint(sample, in: content.box)

@@ -7,6 +7,18 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-26
+
+### Added
+
+- Speech bubble tails can be pointed anywhere: a selected bubble has a yellow handle on the tip of its tail, which
+  drags anywhere (even past the bubble), and one on the end of its base, which makes the tail wider or narrower. The
+  first drag turns the bubble's box into just its body, without moving anything; one undo step puts it back.
+  `ShapeContent.tail` (`BubbleTail`: `tip`, `width`) holds the tail, written to `document.json` only once a tail
+  has been dragged. Touches and the eraser reach the tail wherever it is, and exports and shadows include it. The
+  web package (image-markup-kit 0.2.0) reads and writes the same JSON.
+- `MarkupDebugGesture.dragBubbleTail`, and the "Adjust Tail" undo action name.
+
 ## [0.3.1] - 2026-11-26
 
 ### Fixed
@@ -66,7 +78,8 @@ First public release.
 - `MarkupFeatures`: turn tool groups or single tools off in code or with a `MarkupFeatures.json`.
 - Demo app in `Example/` with sample photos and scripted screenshot scenarios.
 
-[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.1...HEAD
+[Unreleased]: https://github.com/thnhsng/ImageMarkupKit/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/thnhsng/ImageMarkupKit/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/thnhsng/ImageMarkupKit/compare/0.1.0...0.2.0

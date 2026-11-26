@@ -6,7 +6,13 @@ enum PathFactory {
 
     // MARK: Shapes (box space)
 
-    static func shapePath(kind: ShapeKind, size: CGSize, cornerRadius: CGFloat) -> CGPath {
+    /// Path of a shape item in box space.
+    static func shapePath(_ shape: ShapeContent, cornerRadius: CGFloat) -> CGPath {
+        shapePath(kind: shape.kind, size: shape.box.frame.size, cornerRadius: cornerRadius, tail: shape.tail)
+    }
+
+    /// `tail` applies to speech bubbles only (see `BubbleGeometry`).
+    static func shapePath(kind: ShapeKind, size: CGSize, cornerRadius: CGFloat, tail: BubbleTail? = nil) -> CGPath {
         let rect = CGRect(origin: .zero, size: size)
         let w = size.width, h = size.height
         switch kind {
@@ -25,6 +31,7 @@ enum PathFactory {
         case .star:
             return polygon(fitted(regularPolygon(sides: 5, innerRatio: 0.4), into: rect))
         case .speechBubble:
+            if let tail { return BubbleGeometry.path(size: size, cornerRadius: cornerRadius, tail: tail) }
             return speechBubble(size: size, cornerRadius: cornerRadius)
         }
     }
